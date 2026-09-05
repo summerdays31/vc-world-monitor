@@ -16,15 +16,24 @@ export type MetricUnit =
   | "TWH"
   | "CUSTOM";
 
+/** How a metric figure was obtained. */
+export type ProvenanceKind = "example" | "live" | "curated";
+
 export interface MetricValue {
   /** Display value already formatted for UI */
   display: string;
   /** Numeric for sorting / delta math when available */
   numeric?: number;
   unit?: MetricUnit;
-  /** Always true for seed data */
-  isExample: true;
+  /** True only for placeholder EXAMPLE DATA */
+  isExample: boolean;
+  /** live = fetched; curated = published report; example = seed */
+  provenance: ProvenanceKind;
   asOf: string;
+  /** True when showing last-known curated after a failed live fetch */
+  stale?: boolean;
+  sourceLabel?: string;
+  sourceUrl?: string;
 }
 
 export interface Delta {
@@ -32,13 +41,13 @@ export interface Delta {
   display: string;
   direction: "up" | "down" | "flat";
   period: string;
-  isExample: true;
+  isExample: boolean;
 }
 
 export interface SourceTag {
   label: string;
-  /** Never invent real citations for example data */
-  kind: "example" | "placeholder";
+  kind: "example" | "placeholder" | "live" | "curated";
+  url?: string;
 }
 
 export interface Catalyst {

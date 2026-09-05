@@ -1,35 +1,61 @@
 /**
- * Data adapters — swap EXAMPLE seed for live feeds later.
+ * Data adapters — EXAMPLE seed + selective live/curated overlays.
  * Keep adapters thin: map external payloads → Sector / MetricValue schema.
  */
 
-import { sectors, globalPulse, emergingSignals } from "@/data/sectors";
+import {
+  sectors as seedSectors,
+  globalPulse,
+  emergingSignals,
+} from "@/data/sectors";
 import { briefSections, briefMeta } from "@/data/brief";
 import type { Sector } from "@/data/types";
+import { applyLiveOverlays, fetchLiveBundle, type LiveBundle } from "@/lib/live";
 
-export type DataProvenance = "example";
+export type DataProvenance = "example" | "mixed";
 
-export function getMonitorBundle() {
+export type MonitorBundle = {
+  provenance: DataProvenance;
+  label: string;
+  asOf: string;
+  sectors: Sector[];
+  pulse: typeof globalPulse;
+  emerging: typeof emergingSignals;
+  brief: { meta: typeof briefMeta; sections: typeof briefSections };
+  live?: LiveBundle;
+};
+
+export async function getMonitorBundle(): Promise<MonitorBundle> {
+  const live = await fetchLiveBundle();
+  const sectors = applyLiveOverlays(
+    seedSectors.map((s) => structuredClone(s)),
+    live
+  );
+
   return {
-    provenance: "example" as DataProvenance,
-    label: "EXAMPLE DATA",
-    asOf: "2026-09-01",
+    provenance: "mixed",
+    label: "MIXED — live/curated overlays + EXAMPLE seed",
+    asOf: live.fetchedAt.slice(0, 10),
     sectors,
     pulse: globalPulse,
     emerging: emergingSignals,
     brief: { meta: briefMeta, sections: briefSections },
+    live,
   };
 }
 
-export function listSectors(): Sector[] {
-  return getMonitorBundle().sectors;
+export async function listSectors(): Promise<Sector[]> {
+  return (await getMonitorBundle()).sectors;
+}
+
+export async function getSectorLive(slug: string): Promise<Sector | null> {
+  const sectors = await listSectors();
+  return sectors.find((s) => s.slug === slug) ?? null;
 }
 
 /**
- * Future: replace body with fetch to your warehouse / API.
- * Signature stays stable so UI does not churn.
+ * @deprecated Prefer getSectorLive — kept for sync static params from seed.
  */
-export async function fetchLiveSector(_slug: string): Promise<Sector | null> {
-  // Placeholder — live wiring documented in README
-  return null;
+export async function fetchLiveSector(slug: string): Promise<Sector | null> {
+  return getSectorLive(slug);
 }

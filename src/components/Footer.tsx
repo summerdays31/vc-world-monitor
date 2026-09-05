@@ -1,4 +1,4 @@
-import { ExampleBadge } from "./ExampleBadge";
+import { ExampleBadge, ProvenanceBadge } from "./ProvenanceBadge";
 
 export function Footer() {
   return (
@@ -9,8 +9,16 @@ export function Footer() {
             Public dashboard · not investment advice
           </p>
           <p className="max-w-xl text-sm text-zinc-400">
-            Metrics schema is typed in TypeScript. Seed adapters ship with{" "}
-            <ExampleBadge /> only — wire live sources without rewriting cards.
+            Typed metrics schema. Three key figures use{" "}
+            <ProvenanceBadge
+              value={{
+                isExample: false,
+                provenance: "live",
+                asOf: "",
+                sourceLabel: "public feeds",
+              }}
+            />{" "}
+            / curated reports; all others ship as <ExampleBadge />.
           </p>
         </div>
         <p className="font-mono text-[11px] text-zinc-600">

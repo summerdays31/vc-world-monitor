@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s · VC World Monitor",
   },
   description:
-    "Sequoia/a16z-style public world monitor: sector change, value accrual, and early signals. EXAMPLE DATA placeholders.",
+    "Sequoia/a16z-style public world monitor: sector change, value accrual, and early signals. Mixed live/curated public metrics + EXAMPLE DATA placeholders.",
 };
 
 export default function RootLayout({

@@ -2,7 +2,28 @@
 
 Public Sequoia/a16z-style world monitor: sector change, value accrual, and early signals.
 
-> All metrics are EXAMPLE DATA placeholders. Visible badges on every figure.
+Most metrics are **EXAMPLE DATA** placeholders (amber badge). Three key metrics are wired to **public live or curated** sources (emerald / sky badges) with honest stale fallbacks — never invented figures.
+
+## Live / curated metrics
+
+| Metric | Sector slot | Mode | Source | Refresh |
+| --- | --- | --- | --- | --- |
+| **GPU rental spot (H100-eq)** | AI → infra | **LIVE** | [RunPod public GraphQL](https://api.runpod.io/graphql) (H100 SXM/NVL on-demand floor). Pricing page: https://www.runpod.io/pricing | Hourly (`revalidate: 3600`). Fallback: last-known curated in `src/data/curated/fallbacks.ts` with **stale** flag. |
+| **Interconnect queue (median IR→COD)** | Data center → infra | **CURATED** | [LBNL Queued Up 2026](https://emp.lbl.gov/queues) — median ~61 months (5.1 yrs) for U.S. projects completed in 2025; PDF: https://emp.lbl.gov/sites/default/files/2026-06/Queued%20Up%202026%20Edition.pdf | Soft HTML confirm daily. Manually bump `interconnectFallback` when LBNL publishes the next annual edition. |
+| **Global VC deployed (H1 YTD)** | Capital formation → north star | **LIVE** (scrape) / curated fallback | [Dealroom Global guide](https://dealroom.co/guides/global) (`$506.2B` H1’26 as of closed Q2). Alternate cite: [KPMG Venture Pulse Q2’26](https://kpmg.com/xx/en/media/press-releases/2026/07/vc-investment-already-at-five-year-high-of-billions.html) mid-year `$560.4B` | Daily scrape. On failure, curated fallback + **stale**. Update `vcFallback` after each closed quarter. |
+
+API route handlers (same fetchers, CDN cache headers):
+
+- `GET /api/metrics/gpu`
+- `GET /api/metrics/interconnect`
+- `GET /api/metrics/vc`
+- `GET /api/metrics/bundle`
+
+No API keys required.
+
+## Still EXAMPLE DATA
+
+All other north stars, capital pulses, talent metrics, movers, catalysts, pulse row, emerging cards, and the editorial brief remain seed placeholders with amber **Example data** badges.
 
 ## Routes
 
@@ -21,7 +42,7 @@ Cross-cut (not a tile): US / China / EU industrial-policy toggle on cards.
 
 ## Stack
 
-Next.js App Router, TypeScript, Tailwind v4. Typed schema in `src/data/types.ts`. Seed in `src/data/sectors.ts`. Adapters in `src/lib/adapters.ts`.
+Next.js App Router, TypeScript, Tailwind v4. Typed schema in `src/data/types.ts`. Seed in `src/data/sectors.ts`. Curated fallbacks in `src/data/curated/fallbacks.ts`. Live fetchers in `src/lib/live/`. Adapters in `src/lib/adapters.ts`.
 
 ## Run
 
@@ -31,22 +52,18 @@ bun run dev
 bun run build
 ```
 
-Node alternative: use your package manager install / run dev / run build scripts from package.json.
+Node alternative: use your package manager install / run scripts from `package.json`.
 
 ## Add a sector or metric
 
 1. Append a `Sector` object in `src/data/sectors.ts`.
 2. Extend `SectorMetrics` in `src/data/types.ts` if adding fields.
-3. Keep `isExample: true` and ExampleBadge visible.
-4. Source tags must be example/placeholder — never fake citations.
+3. Keep `isExample: true` / `provenance: "example"` and ExampleBadge visible for unsourced figures.
+4. To wire a public feed: add a fetcher under `src/lib/live/`, curated fallback, overlay in `applyLiveOverlays`, and document it here.
 
 ## Deploy on Vercel free tier
 
-Import `summerdays31/vc-world-monitor` at vercel.com/new. Next.js preset. No env vars needed for EXAMPLE DATA.
-
-## Wire live data later
-
-Implement fetches in `src/lib/adapters.ts`, map into `Sector` / `MetricValue` / `Delta`, then flip provenance off example mode only when sourced.
+Import `summerdays31/vc-world-monitor` at vercel.com/new. Next.js preset. No env vars needed.
 
 ## License
 

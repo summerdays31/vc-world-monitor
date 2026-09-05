@@ -15,7 +15,8 @@ function v(display: string, numeric?: number, unit?: import("./types").MetricUni
     display,
     numeric,
     unit,
-    isExample: ex,
+    isExample: true,
+    provenance: "example" as const,
     asOf: "2026-09-01",
   };
 }

@@ -1,15 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeltaPill } from "@/components/DeltaPill";
-import { ExampleBadge } from "@/components/ExampleBadge";
+import { ExampleBadge, ProvenanceBadge } from "@/components/ProvenanceBadge";
+import { MetricBlock } from "@/components/MetricBlock";
 import { PolicyToggle } from "@/components/PolicyToggle";
 import { SectorChipStrip } from "@/components/SectorChipStrip";
 import { StructuralGauge } from "@/components/StructuralGauge";
-import { getSector, sectors } from "@/data/sectors";
+import { sectors as seedSectors } from "@/data/sectors";
+import { getSectorLive, listSectors } from "@/lib/adapters";
 import { modeClass, urgencyClass } from "@/lib/format";
 
+export const revalidate = 3600;
+
 export function generateStaticParams() {
-  return sectors.map((s) => ({ slug: s.slug }));
+  return seedSectors.map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({
@@ -18,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const sector = getSector(slug);
+  const sector = await getSectorLive(slug);
   if (!sector) return { title: "Sector" };
   return {
     title: sector.name,
@@ -32,14 +36,18 @@ export default async function SectorDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const sector = getSector(slug);
+  const [sector, allSectors] = await Promise.all([
+    getSectorLive(slug),
+    listSectors(),
+  ]);
   if (!sector) notFound();
 
   const { metrics } = sector;
+  const ns = metrics.northStar.value;
 
   return (
     <div className="space-y-8">
-      <SectorChipStrip sectors={sectors} activeSlug={sector.slug} />
+      <SectorChipStrip sectors={allSectors} activeSlug={sector.slug} />
 
       <header className="space-y-3 border-b border-zinc-800/80 pb-6">
         <div className="flex flex-wrap items-center gap-2">
@@ -50,7 +58,15 @@ export default async function SectorDetailPage({
           >
             {sector.mode}
           </span>
-          <ExampleBadge />
+          {ns.isExample &&
+          metrics.infraOrAdoption.value.isExample &&
+          metrics.capitalPulse.value.isExample ? (
+            <ExampleBadge />
+          ) : (
+            <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
+              Mixed provenance
+            </span>
+          )}
           <Link
             href="/"
             className="ml-auto font-mono text-[11px] uppercase tracking-wide text-zinc-500 hover:text-zinc-300"
@@ -74,40 +90,57 @@ export default async function SectorDetailPage({
         </p>
       </header>
 
-      {/* Anchor metric — Yellowcake style */}
       <section className="grid gap-4 lg:grid-cols-3">
         <div className="rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-900 to-[#0a0d12] p-5 lg:col-span-2">
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
               Anchor metric
             </h2>
-            <ExampleBadge />
+            {ns.isExample ? (
+              <ExampleBadge />
+            ) : (
+              <ProvenanceBadge value={ns} />
+            )}
           </div>
           <p className="text-sm text-zinc-400">{metrics.northStar.label}</p>
           <div className="mt-2 flex flex-wrap items-baseline gap-3">
             <span className="font-mono text-4xl font-semibold text-zinc-50 sm:text-5xl">
-              {metrics.northStar.value.display}
+              {ns.display}
             </span>
             <DeltaPill delta={metrics.northStar.delta} />
           </div>
+          {!ns.isExample && (
+            <p className="mt-2 font-mono text-[11px] text-zinc-500">
+              as of {ns.asOf}
+              {ns.sourceUrl && (
+                <>
+                  {" · "}
+                  <a
+                    href={ns.sourceUrl}
+                    className="text-sky-400 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {ns.sourceLabel ?? "source"}
+                  </a>
+                </>
+              )}
+              {ns.stale ? " · stale fallback" : ""}
+            </p>
+          )}
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[
               metrics.capitalPulse,
               metrics.infraOrAdoption,
               metrics.talentOrAdoption,
             ].map((m) => (
-              <div
+              <MetricBlock
                 key={m.label}
-                className="rounded-lg border border-zinc-800/80 bg-black/30 p-3"
-              >
-                <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
-                  {m.label}
-                </div>
-                <div className="mt-1 font-mono text-lg text-zinc-100">
-                  {m.value.display}
-                </div>
-                <DeltaPill delta={m.delta} compact />
-              </div>
+                label={m.label}
+                value={m.value}
+                delta={m.delta}
+                size="lg"
+              />
             ))}
           </div>
         </div>
@@ -171,14 +204,32 @@ export default async function SectorDetailPage({
           {sector.methodology}
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {sector.sources.map((s) => (
-            <span
-              key={s.label}
-              className="rounded border border-zinc-800 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-zinc-500"
-            >
-              {s.label}
-            </span>
-          ))}
+          {sector.sources.map((s) =>
+            s.url ? (
+              <a
+                key={s.label}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`rounded border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide ${
+                  s.kind === "live"
+                    ? "border-emerald-800 text-emerald-400"
+                    : s.kind === "curated"
+                      ? "border-sky-800 text-sky-400"
+                      : "border-zinc-800 text-zinc-500"
+                }`}
+              >
+                {s.label}
+              </a>
+            ) : (
+              <span
+                key={s.label}
+                className="rounded border border-zinc-800 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-zinc-500"
+              >
+                {s.label}
+              </span>
+            )
+          )}
         </div>
       </footer>
     </div>

@@ -1,11 +1,13 @@
 import { PulseRow } from "@/components/PulseRow";
 import { SectorCard } from "@/components/SectorCard";
 import { SectorChipStrip } from "@/components/SectorChipStrip";
-import { ExampleBadge } from "@/components/ExampleBadge";
+import { ExampleBadge, ProvenanceBadge } from "@/components/ProvenanceBadge";
 import { getMonitorBundle } from "@/lib/adapters";
 
-export default function HomePage() {
-  const { sectors, pulse, asOf } = getMonitorBundle();
+export const revalidate = 3600;
+
+export default async function HomePage() {
+  const { sectors, pulse, asOf, live } = await getMonitorBundle();
 
   return (
     <div className="space-y-8">
@@ -20,18 +22,24 @@ export default function HomePage() {
             </h1>
             <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
               Dark terminal-meets-editorial dashboard across{" "}
-              <span className="text-zinc-200">{sectors.length} themes</span>. Visual
-              blend of live pulse chips + Yellowcake-style structural brief.
-              Industrial policy is a US / China / EU toggle on every card.
+              <span className="text-zinc-200">{sectors.length} themes</span>. Three
+              key metrics pull public live/curated feeds; all others remain{" "}
+              <ExampleBadge />.
             </p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-right">
             <div className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
-              As of
+              Bundle as of
             </div>
             <div className="font-mono text-sm text-zinc-200">{asOf}</div>
-            <div className="mt-1">
-              <ExampleBadge />
+            <div className="mt-1 flex flex-col items-end gap-1">
+              {live && (
+                <>
+                  <ProvenanceBadge value={live.gpu.value} />
+                  <ProvenanceBadge value={live.interconnect.value} />
+                  <ProvenanceBadge value={live.vc.value} />
+                </>
+              )}
             </div>
           </div>
         </div>

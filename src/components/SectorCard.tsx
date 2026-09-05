@@ -2,11 +2,23 @@ import Link from "next/link";
 import type { Sector } from "@/data/types";
 import { modeClass, urgencyClass } from "@/lib/format";
 import { DeltaPill } from "./DeltaPill";
-import { ExampleBadge } from "./ExampleBadge";
+import { ExampleBadge, ProvenanceBadge } from "./ProvenanceBadge";
+import { MetricBlock } from "./MetricBlock";
 import { PolicyToggle } from "./PolicyToggle";
+
+function sectorHasLive(sector: Sector): boolean {
+  const vals = [
+    sector.metrics.northStar.value,
+    sector.metrics.capitalPulse.value,
+    sector.metrics.infraOrAdoption.value,
+    sector.metrics.talentOrAdoption.value,
+  ];
+  return vals.some((v) => !v.isExample);
+}
 
 export function SectorCard({ sector }: { sector: Sector }) {
   const { metrics } = sector;
+  const mixed = sectorHasLive(sector);
   return (
     <article
       className="group flex flex-col rounded-xl border border-zinc-800/90 bg-[#0b0e13] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition hover:border-zinc-600/80 hover:shadow-[0_0_40px_-20px_rgba(125,211,252,0.35)]"
@@ -30,7 +42,16 @@ export function SectorCard({ sector }: { sector: Sector }) {
           >
             {sector.mode}
           </span>
-          <ExampleBadge />
+          {mixed ? (
+            <ProvenanceBadge value={metrics.infraOrAdoption.value.isExample === false
+              ? metrics.infraOrAdoption.value
+              : metrics.northStar.value.isExample === false
+                ? metrics.northStar.value
+                : { isExample: true, provenance: "example", asOf: "" }}
+            />
+          ) : (
+            <ExampleBadge />
+          )}
         </div>
       </div>
 
@@ -44,6 +65,18 @@ export function SectorCard({ sector }: { sector: Sector }) {
           </span>
           <DeltaPill delta={metrics.northStar.delta} />
         </div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {metrics.northStar.value.isExample ? (
+            <ExampleBadge />
+          ) : (
+            <>
+              <ProvenanceBadge value={metrics.northStar.value} />
+              <span className="font-mono text-[9px] text-zinc-600">
+                as of {metrics.northStar.value.asOf}
+              </span>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="mb-3 grid grid-cols-3 gap-2">
@@ -52,18 +85,12 @@ export function SectorCard({ sector }: { sector: Sector }) {
           metrics.infraOrAdoption,
           metrics.talentOrAdoption,
         ].map((m) => (
-          <div
+          <MetricBlock
             key={m.label}
-            className="rounded-md border border-zinc-800/60 bg-zinc-950/50 p-2"
-          >
-            <div className="line-clamp-2 font-mono text-[9px] uppercase leading-tight tracking-wide text-zinc-500">
-              {m.label}
-            </div>
-            <div className="mt-1 font-mono text-sm font-medium text-zinc-200">
-              {m.value.display}
-            </div>
-            <DeltaPill delta={m.delta} compact />
-          </div>
+            label={m.label}
+            value={m.value}
+            delta={m.delta}
+          />
         ))}
       </div>
 
@@ -85,14 +112,32 @@ export function SectorCard({ sector }: { sector: Sector }) {
       </p>
 
       <div className="mb-3 flex flex-wrap gap-1.5">
-        {sector.sources.map((s) => (
-          <span
-            key={s.label}
-            className="rounded border border-zinc-800 bg-zinc-900/80 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-zinc-500"
-          >
-            {s.label}
-          </span>
-        ))}
+        {sector.sources.map((s) =>
+          s.url ? (
+            <a
+              key={s.label}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`rounded border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide ${
+                s.kind === "live"
+                  ? "border-emerald-800 bg-emerald-950/50 text-emerald-400"
+                  : s.kind === "curated"
+                    ? "border-sky-800 bg-sky-950/50 text-sky-400"
+                    : "border-zinc-800 bg-zinc-900/80 text-zinc-500"
+              }`}
+            >
+              {s.label}
+            </a>
+          ) : (
+            <span
+              key={s.label}
+              className="rounded border border-zinc-800 bg-zinc-900/80 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-zinc-500"
+            >
+              {s.label}
+            </span>
+          )
+        )}
       </div>
 
       <div className="mt-auto space-y-3">

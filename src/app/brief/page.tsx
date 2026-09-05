@@ -10,8 +10,10 @@ export const metadata: Metadata = {
     "Yellowcake-style brief: anchor, structural proxy, movers, catalysts — EXAMPLE DATA.",
 };
 
-export default function BriefPage() {
-  const { brief, pulse } = getMonitorBundle();
+export const revalidate = 3600;
+
+export default async function BriefPage() {
+  const { brief, pulse } = await getMonitorBundle();
   const { meta, sections } = brief;
 
   return (
