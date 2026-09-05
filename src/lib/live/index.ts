@@ -115,7 +115,7 @@ export function applyLiveOverlays(
         ...s.sources.filter((x) => !/GPU|gpu/i.test(x.label)),
       ];
       copy.methodology =
-        "North star is GPU rental spot — RunPod public GraphQL H100 on-demand floor (live, hourly cache; curated stale fallback). Est. AI software ARR and other metrics remain EXAMPLE DATA.";
+        "North star is GPU rental spot — RunPod public GraphQL H100 on-demand floor (live, daily cache + cron warm; curated stale fallback). Est. AI software ARR and other metrics remain EXAMPLE DATA.";
     }
 
     if (s.slug === "data-center") {

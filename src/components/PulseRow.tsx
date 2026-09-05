@@ -55,7 +55,8 @@ function PulseLink({ item }: { item: PulseItem }) {
 
 export function PulseRow({ items }: { items: PulseItem[] }) {
   const wired = items.filter(isWired);
-  const examples = items.filter((i) => !isWired(i));
+  // Cap EXAMPLE movers so the row stays scannable under the live block
+  const examples = items.filter((i) => !isWired(i)).slice(0, 3);
 
   return (
     <section className="rounded-xl border border-zinc-800/90 bg-gradient-to-br from-zinc-900/80 to-[#0a0d12] p-4 sm:p-5">

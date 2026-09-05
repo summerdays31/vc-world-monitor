@@ -15,7 +15,7 @@ type GpuType = {
 /**
  * Live H100-equivalent spot: RunPod public GraphQL (no API key).
  * Prefer H100 SXM / NVL on-demand floor; median of available H100 prices.
- * Cached via Next fetch revalidate (hourly).
+ * Cached via Next fetch revalidate (daily); Vercel cron also warms daily.
  */
 export async function fetchGpuRentalSpot(): Promise<LiveMetricPayload> {
   try {
@@ -23,7 +23,7 @@ export async function fetchGpuRentalSpot(): Promise<LiveMetricPayload> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: QUERY }),
-      next: { revalidate: 3600 },
+      next: { revalidate: 86400 },
     });
     if (!res.ok) throw new Error(`RunPod HTTP ${res.status}`);
     const json = (await res.json()) as {

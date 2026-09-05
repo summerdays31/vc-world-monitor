@@ -21,7 +21,10 @@ export type DataProvenance = "example" | "mixed";
 export type MonitorBundle = {
   provenance: DataProvenance;
   label: string;
+  /** Calendar as-of (YYYY-MM-DD) for display chips */
   asOf: string;
+  /** Full ISO timestamp of the live bundle fetch */
+  refreshedAt: string;
   sectors: Sector[];
   pulse: PulseItem[];
   emerging: typeof emergingSignals;
@@ -41,6 +44,7 @@ export async function getMonitorBundle(): Promise<MonitorBundle> {
     provenance: "mixed",
     label: "MIXED — live/curated overlays + EXAMPLE seed",
     asOf: live.fetchedAt.slice(0, 10),
+    refreshedAt: live.fetchedAt,
     sectors,
     pulse,
     emerging: emergingSignals,
