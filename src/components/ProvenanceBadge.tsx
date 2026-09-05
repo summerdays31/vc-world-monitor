@@ -2,13 +2,13 @@ import type { MetricValue, ProvenanceKind } from "@/data/types";
 
 const styles: Record<ProvenanceKind, string> = {
   example:
-    "border-amber-500/50 bg-amber-500/10 text-amber-300",
+    "border-amber-400/70 bg-amber-500/20 text-amber-200 shadow-[0_0_0_1px_rgba(251,191,36,0.15)]",
   live: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300",
   curated: "border-sky-500/50 bg-sky-500/10 text-sky-300",
 };
 
 const labels: Record<ProvenanceKind, string> = {
-  example: "Example data",
+  example: "EXAMPLE DATA",
   live: "Live",
   curated: "Curated",
 };
@@ -40,7 +40,7 @@ export function ProvenanceBadge({
       <span
         className={`h-1.5 w-1.5 rounded-full ${
           kind === "example"
-            ? "bg-amber-400"
+            ? "bg-amber-400 animate-pulse"
             : kind === "live"
               ? "bg-emerald-400"
               : "bg-sky-400"

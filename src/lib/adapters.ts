@@ -5,12 +5,16 @@
 
 import {
   sectors as seedSectors,
-  globalPulse,
   emergingSignals,
 } from "@/data/sectors";
 import { briefSections, briefMeta } from "@/data/brief";
-import type { Sector } from "@/data/types";
-import { applyLiveOverlays, fetchLiveBundle, type LiveBundle } from "@/lib/live";
+import type { PulseItem, Sector } from "@/data/types";
+import {
+  applyLiveOverlays,
+  buildGlobalPulse,
+  fetchLiveBundle,
+  type LiveBundle,
+} from "@/lib/live";
 
 export type DataProvenance = "example" | "mixed";
 
@@ -19,7 +23,7 @@ export type MonitorBundle = {
   label: string;
   asOf: string;
   sectors: Sector[];
-  pulse: typeof globalPulse;
+  pulse: PulseItem[];
   emerging: typeof emergingSignals;
   brief: { meta: typeof briefMeta; sections: typeof briefSections };
   live?: LiveBundle;
@@ -31,13 +35,14 @@ export async function getMonitorBundle(): Promise<MonitorBundle> {
     seedSectors.map((s) => structuredClone(s)),
     live
   );
+  const pulse = buildGlobalPulse(live);
 
   return {
     provenance: "mixed",
     label: "MIXED — live/curated overlays + EXAMPLE seed",
     asOf: live.fetchedAt.slice(0, 10),
     sectors,
-    pulse: globalPulse,
+    pulse,
     emerging: emergingSignals,
     brief: { meta: briefMeta, sections: briefSections },
     live,

@@ -62,7 +62,9 @@ export const interconnectFallback: LiveMetricPayload = {
 
 /**
  * Dealroom Global VC guide: $506.2B raised in first 6 months of 2026
- * (closed quarters through Q2 2026). Full-year 2025 was $444.1B.
+ * (closed quarters through Q2 2026). Full-year 2025 was $444.1B on the same
+ * page — do NOT compare H1 YTD to full-year FY as a %. Dealroom does not
+ * publish a clear H1’25 figure on the public guide, so delta is level-only.
  */
 export const vcFallback: LiveMetricPayload = {
   value: {
@@ -76,11 +78,11 @@ export const vcFallback: LiveMetricPayload = {
     sourceUrl: "https://dealroom.co/guides/global",
   },
   delta: {
-    display: "+14%",
-    direction: "up",
-    period: "vs FY25",
+    display: "level",
+    direction: "flat",
+    period: "H1’26 YTD",
     isExample: false,
   },
   note:
-    "H1 2026 YTD global VC from Dealroom public guide ($506.2B). Alternate cite: KPMG Venture Pulse Q2’26 mid-year $560.4B (https://kpmg.com/xx/en/media/press-releases/2026/07/vc-investment-already-at-five-year-high-of-billions.html). Refresh after each closed quarter on Dealroom or KPMG Venture Pulse.",
+    "H1 2026 YTD global VC from Dealroom public guide ($506.2B). No H1’25 comparable on the public page — show level only (not vs FY25). Alternate cite: KPMG Venture Pulse Q2’26 mid-year $560.4B. Refresh after each closed quarter.",
 };

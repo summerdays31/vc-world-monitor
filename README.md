@@ -8,9 +8,9 @@ Most metrics are **EXAMPLE DATA** placeholders (amber badge). Three key metrics 
 
 | Metric | Sector slot | Mode | Source | Refresh |
 | --- | --- | --- | --- | --- |
-| **GPU rental spot (H100-eq)** | AI → infra | **LIVE** | [RunPod public GraphQL](https://api.runpod.io/graphql) (H100 SXM/NVL on-demand floor). Pricing page: https://www.runpod.io/pricing | Hourly (`revalidate: 3600`). Fallback: last-known curated in `src/data/curated/fallbacks.ts` with **stale** flag. |
-| **Interconnect queue (median IR→COD)** | Data center → infra | **CURATED** | [LBNL Queued Up 2026](https://emp.lbl.gov/queues) — median ~61 months (5.1 yrs) for U.S. projects completed in 2025; PDF: https://emp.lbl.gov/sites/default/files/2026-06/Queued%20Up%202026%20Edition.pdf | Soft HTML confirm daily. Manually bump `interconnectFallback` when LBNL publishes the next annual edition. |
-| **Global VC deployed (H1 YTD)** | Capital formation → north star | **LIVE** (scrape) / curated fallback | [Dealroom Global guide](https://dealroom.co/guides/global) (`$506.2B` H1’26 as of closed Q2). Alternate cite: [KPMG Venture Pulse Q2’26](https://kpmg.com/xx/en/media/press-releases/2026/07/vc-investment-already-at-five-year-high-of-billions.html) mid-year `$560.4B` | Daily scrape. On failure, curated fallback + **stale**. Update `vcFallback` after each closed quarter. |
+| **GPU rental spot (H100-eq)** | AI → **north star** | **LIVE** | [RunPod public GraphQL](https://api.runpod.io/graphql) (H100 SXM/NVL on-demand floor). Pricing page: https://www.runpod.io/pricing | Hourly (`revalidate: 3600`). Fallback: last-known curated in `src/data/curated/fallbacks.ts` with **stale** flag. Est. AI software ARR demoted to EXAMPLE infra slot. |
+| **Interconnect queue (median IR→COD)** | Data center → **north star** | **CURATED** | [LBNL Queued Up 2026](https://emp.lbl.gov/queues) — median ~61 months (5.1 yrs) for U.S. projects completed in 2025; PDF: https://emp.lbl.gov/sites/default/files/2026-06/Queued%20Up%202026%20Edition.pdf | Soft HTML confirm daily. Manually bump `interconnectFallback` when LBNL publishes the next annual edition. Hyperscale capex demoted to EXAMPLE infra slot. |
+| **Global VC deployed (H1 YTD)** | Capital formation → north star | **LIVE** (scrape) / curated fallback | [Dealroom Global guide](https://dealroom.co/guides/global) (`$506.2B` H1’26 as of closed Q2). Alternate cite: [KPMG Venture Pulse Q2’26](https://kpmg.com/xx/en/media/press-releases/2026/07/vc-investment-already-at-five-year-high-of-billions.html) mid-year `$560.4B` | Daily scrape. On failure, curated fallback + **stale**. Delta is **level / H1’26 YTD** (not vs FY25). Prefer H1’26 vs H1’25 only if Dealroom publishes it. Update `vcFallback` after each closed quarter. |
 
 API route handlers (same fetchers, CDN cache headers):
 
@@ -23,7 +23,7 @@ No API keys required.
 
 ## Still EXAMPLE DATA
 
-All other north stars, capital pulses, talent metrics, movers, catalysts, pulse row, emerging cards, and the editorial brief remain seed placeholders with amber **Example data** badges.
+All other north stars, capital pulses, talent metrics, movers, catalysts, EXAMPLE pulse movers, emerging cards, and the editorial brief remain seed placeholders with amber **EXAMPLE DATA** badges. Card chrome never shows Live/Curated for a whole sector — only the wired metric does. Global pulse leads with the three wired metrics, then a separated EXAMPLE movers section.
 
 ## Routes
 

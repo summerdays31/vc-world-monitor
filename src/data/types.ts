@@ -117,6 +117,12 @@ export interface PulseItem {
   sectorName: string;
   label: string;
   delta: Delta;
+  /** Optional live level shown beside the mover */
+  valueDisplay?: string;
+  isExample?: boolean;
+  provenance?: ProvenanceKind;
+  stale?: boolean;
+  sourceLabel?: string;
 }
 
 export interface EmergingSignalCard {

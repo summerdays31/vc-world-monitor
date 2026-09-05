@@ -60,11 +60,12 @@ export default async function SectorDetailPage({
           </span>
           {ns.isExample &&
           metrics.infraOrAdoption.value.isExample &&
-          metrics.capitalPulse.value.isExample ? (
+          metrics.capitalPulse.value.isExample &&
+          metrics.talentOrAdoption.value.isExample ? (
             <ExampleBadge />
           ) : (
             <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-500">
-              Mixed provenance
+              Contains wired metric · others EXAMPLE
             </span>
           )}
           <Link
@@ -91,7 +92,13 @@ export default async function SectorDetailPage({
       </header>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-900 to-[#0a0d12] p-5 lg:col-span-2">
+        <div
+          className={`rounded-xl border bg-gradient-to-br from-zinc-900 to-[#0a0d12] p-5 lg:col-span-2 ${
+            ns.isExample
+              ? "border-dashed border-amber-500/40"
+              : "border-zinc-800"
+          }`}
+        >
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
               Anchor metric
@@ -102,9 +109,18 @@ export default async function SectorDetailPage({
               <ProvenanceBadge value={ns} />
             )}
           </div>
-          <p className="text-sm text-zinc-400">{metrics.northStar.label}</p>
+          <p className="text-sm text-zinc-400">
+            {metrics.northStar.label}
+            {ns.isExample && !/\(EXAMPLE\)/i.test(metrics.northStar.label)
+              ? " · EXAMPLE"
+              : ""}
+          </p>
           <div className="mt-2 flex flex-wrap items-baseline gap-3">
-            <span className="font-mono text-4xl font-semibold text-zinc-50 sm:text-5xl">
+            <span
+              className={`font-mono text-4xl font-semibold sm:text-5xl ${
+                ns.isExample ? "text-amber-100/90" : "text-zinc-50"
+              }`}
+            >
               {ns.display}
             </span>
             <DeltaPill delta={metrics.northStar.delta} />

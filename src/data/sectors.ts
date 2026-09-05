@@ -32,19 +32,19 @@ export const sectors: Sector[] = [
     shortName: "AI",
     mode: "Mature",
     blurb: "Foundation models, agents, and enterprise copilot spend.",
-    whyItMoved: "Enterprise seat expansion + inference price war compressed unit costs.",
+    whyItMoved: "Public H100-eq rental floors are the live capacity-price signal; software ARR estimates remain EXAMPLE placeholders.",
     catalyst: {
-      id: "ai-c1",
-      label: "Agentic workflows GA",
+      id: "ai-c-gpu",
+      label: "GPU rental spot floor",
       urgency: "high",
-      note: "Multi-step tools shipping into CRM/ITSM stacks",
+      note: "RunPod public H100 on-demand floor as live infra price",
     },
     accent: "#7dd3fc",
     metrics: {
       northStar: {
-        label: "Est. AI software ARR",
-        value: v("$48.2B", 48.2, "USD_B"),
-        delta: d("+18.4%", "up"),
+        label: "GPU rental spot (H100-eq)",
+        value: v("$1.85/hr", 1.85, "CUSTOM"),
+        delta: d("spot", "flat", "on-demand floor"),
       },
       capitalPulse: {
         label: "Private rounds (30d)",
@@ -52,9 +52,9 @@ export const sectors: Sector[] = [
         delta: d("+9.2%", "up"),
       },
       infraOrAdoption: {
-        label: "GPU rental spot (H100-eq)",
-        value: v("$1.85/hr", 1.85, "CUSTOM"),
-        delta: d("−22%", "down", "90d"),
+        label: "Est. AI software ARR (EXAMPLE)",
+        value: v("$48.2B", 48.2, "USD_B"),
+        delta: d("+18.4%", "up"),
       },
       talentOrAdoption: {
         label: "Open roles: ML eng",
@@ -89,8 +89,8 @@ export const sectors: Sector[] = [
     ],
     catalysts: [
       {
-        id: "ai-c1",
-        label: "Agentic workflows GA",
+        id: "ai-c-gpu",
+        label: "GPU rental spot floor",
         urgency: "high",
       },
       {
@@ -111,10 +111,10 @@ export const sectors: Sector[] = [
     },
     sources: [
       { label: "EXAMPLE — ARR rollup", kind: "example" },
-      { label: "EXAMPLE — GPU spot index", kind: "example" },
+      { label: "EXAMPLE — GPU spot (seed)", kind: "example" },
     ],
     methodology:
-      "North star blends public ARR disclosures and EXAMPLE private estimates. GPU rental is a synthetic spot composite. All figures labeled EXAMPLE DATA.",
+      "North star is GPU rental spot (wired live via RunPod when available). Est. AI software ARR and other figures remain EXAMPLE DATA.",
   },
   {
     slug: "healthcare",
@@ -323,18 +323,19 @@ export const sectors: Sector[] = [
     shortName: "DC",
     mode: "Mature",
     blurb: "Power, land, cooling, and interconnect for AI/cloud load.",
-    whyItMoved: "Power-constrained campuses repriced; interconnect queue rose.",
+    whyItMoved: "U.S. median IR→COD interconnect queue is the binding live/curated bottleneck signal; hyperscale capex remains an EXAMPLE proxy.",
     catalyst: {
       id: "dc-c1",
       label: "Grid interconnection queue",
       urgency: "high",
+      note: "LBNL Queued Up median IR→COD for 2025 completions",
     },
     accent: "#67e8f9",
     metrics: {
       northStar: {
-        label: "Hyperscale capex proxy",
-        value: v("$214B", 214, "USD_B"),
-        delta: d("+24%", "up", "YoY"),
+        label: "Interconnect queue (median IR→COD)",
+        value: v("4.8 yrs", 4.8, "CUSTOM"),
+        delta: d("+0.4y", "up", "YoY"),
       },
       capitalPulse: {
         label: "DC / infra PE+debt",
@@ -342,9 +343,9 @@ export const sectors: Sector[] = [
         delta: d("+12%", "up"),
       },
       infraOrAdoption: {
-        label: "Interconnect queue (median)",
-        value: v("4.8 yrs", 4.8, "CUSTOM"),
-        delta: d("+0.4y", "up", "YoY"),
+        label: "Hyperscale capex proxy (EXAMPLE)",
+        value: v("$214B", 214, "USD_B"),
+        delta: d("+24%", "up", "YoY"),
       },
       talentOrAdoption: {
         label: "Critical facilities roles",
@@ -382,10 +383,10 @@ export const sectors: Sector[] = [
     },
     sources: [
       { label: "EXAMPLE — capex composite", kind: "example" },
-      { label: "EXAMPLE — queue proxy", kind: "example" },
+      { label: "EXAMPLE — queue (seed)", kind: "example" },
     ],
     methodology:
-      "Capex and queue figures are EXAMPLE composites illustrating structural bottlenecks.",
+      "North star is interconnect queue (wired curated via LBNL Queued Up when available). Hyperscale capex and other figures remain EXAMPLE DATA.",
   },
   {
     slug: "defense",
@@ -865,9 +866,9 @@ export const sectors: Sector[] = [
     accent: "#fde047",
     metrics: {
       northStar: {
-        label: "Global VC deployed (YTD)",
+        label: "Global VC deployed (H1 YTD)",
         value: v("$186B", 186, "USD_B"),
-        delta: d("+8%", "up", "YoY"),
+        delta: d("level", "flat", "H1\u201926 YTD"),
       },
       capitalPulse: {
         label: "Private credit AUM add",
@@ -914,7 +915,7 @@ export const sectors: Sector[] = [
       EU: { stance: "Listing Act", note: "Capital markets union" },
     },
     sources: [{ label: "EXAMPLE — VC deployed", kind: "example" }],
-    methodology: "Capital figures are EXAMPLE aggregates for product demonstration.",
+    methodology: "North star is Global VC H1 YTD (wired live/curated via Dealroom when available). Other capital figures remain EXAMPLE DATA.",
   },
   {
     slug: "bio-longevity",
@@ -1256,14 +1257,20 @@ export function getSector(slug: string): Sector | undefined {
   return sectorBySlug[slug];
 }
 
-/** Global pulse: biggest absolute movers across sectors (EXAMPLE). */
-export const globalPulse: PulseItem[] = [
+/**
+ * EXAMPLE-only pulse movers (no wired metrics).
+ * Live/curated GPU, interconnect, and VC are prepended at runtime in buildGlobalPulse.
+ * Do not include GPU −22% or other figures that contradict live overlays.
+ */
+export const globalPulseExample: PulseItem[] = [
   {
     id: "p1",
     sectorSlug: "attention-media",
     sectorName: "Attention",
     label: "Micro-drama ARPU",
     delta: d("+33%", "up", "90d"),
+    isExample: true,
+    provenance: "example",
   },
   {
     id: "p2",
@@ -1271,6 +1278,8 @@ export const globalPulse: PulseItem[] = [
     sectorName: "Data center",
     label: "Liquid cooling attach",
     delta: d("+28%", "up", "90d"),
+    isExample: true,
+    provenance: "example",
   },
   {
     id: "p3",
@@ -1278,13 +1287,8 @@ export const globalPulse: PulseItem[] = [
     sectorName: "Robotics",
     label: "Robotics VC",
     delta: d("+27%", "up", "30d"),
-  },
-  {
-    id: "p4",
-    sectorSlug: "ai",
-    sectorName: "AI",
-    label: "GPU rental spot",
-    delta: d("−22%", "down", "90d"),
+    isExample: true,
+    provenance: "example",
   },
   {
     id: "p5",
@@ -1292,6 +1296,8 @@ export const globalPulse: PulseItem[] = [
     sectorName: "Defense",
     label: "UAV contract velocity",
     delta: d("+31%", "up", "90d"),
+    isExample: true,
+    provenance: "example",
   },
   {
     id: "p6",
@@ -1299,8 +1305,13 @@ export const globalPulse: PulseItem[] = [
     sectorName: "Climate",
     label: "Adaptation capital",
     delta: d("+21%", "up", "30d"),
+    isExample: true,
+    provenance: "example",
   },
 ];
+
+/** @deprecated Prefer globalPulseExample + buildGlobalPulse — seed-only alias. */
+export const globalPulse = globalPulseExample;
 
 export const emergingSignals: EmergingSignalCard[] = [
   {
