@@ -10,21 +10,21 @@ export function PolicyToggle({ policy }: { policy: Sector["policy"] }) {
   const active = policy[region];
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
           Industrial policy
         </span>
-        <div className="flex rounded-md border border-zinc-700/80 p-0.5">
+        <div className="inline-flex rounded-lg bg-slate-100 p-0.5">
           {regions.map((r) => (
             <button
               key={r}
               type="button"
               onClick={() => setRegion(r)}
-              className={`rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide transition ${
+              className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition ${
                 region === r
-                  ? "bg-zinc-100 text-zinc-900"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
               {r}
@@ -32,8 +32,8 @@ export function PolicyToggle({ policy }: { policy: Sector["policy"] }) {
           ))}
         </div>
       </div>
-      <p className="text-sm font-medium text-zinc-200">{active.stance}</p>
-      <p className="mt-0.5 text-xs text-zinc-500">{active.note}</p>
+      <p className="text-sm font-medium text-slate-900">{active.stance}</p>
+      <p className="mt-0.5 text-[13px] text-slate-500">{active.note}</p>
     </div>
   );
 }

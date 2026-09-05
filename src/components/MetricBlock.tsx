@@ -18,47 +18,41 @@ export function MetricBlock({
     <div
       className={
         size === "lg"
-          ? `rounded-lg border p-3 ${
+          ? `rounded-lg border p-4 ${
               example
-                ? "border-dashed border-amber-500/40 bg-amber-950/15"
-                : "border-zinc-800/80 bg-black/30"
+                ? "border-amber-200/80 bg-amber-50/50"
+                : "border-slate-200 bg-slate-50/70"
             }`
-          : `rounded-md border p-2 ${
+          : `rounded-lg border p-3 ${
               example
-                ? "border-dashed border-amber-500/35 bg-amber-950/10"
-                : "border-zinc-800/60 bg-zinc-950/50"
+                ? "border-amber-200/70 bg-amber-50/40"
+                : "border-slate-200 bg-white"
             }`
       }
     >
       <div
-        className={`font-mono uppercase tracking-wide ${
-          example ? "text-amber-600/80" : "text-zinc-500"
-        } ${
+        className={`text-slate-500 ${
           size === "lg"
-            ? "text-[10px]"
-            : "line-clamp-2 text-[9px] leading-tight"
+            ? "text-[11px] font-medium"
+            : "line-clamp-2 text-[11px] leading-tight"
         }`}
       >
         {label}
         {example && !label.includes("(EXAMPLE)") ? " · EXAMPLE" : ""}
       </div>
       <div
-        className={`mt-1 font-mono font-medium ${
-          example ? "text-amber-100/80" : "text-zinc-100"
-        } ${size === "lg" ? "text-lg" : "text-sm"}`}
+        className={`mt-1.5 font-medium tabular-nums tracking-tight text-slate-900 ${
+          size === "lg" ? "text-xl font-light" : "text-base"
+        }`}
       >
         {value.display}
       </div>
-      <div className="mt-1 flex flex-wrap items-center gap-1">
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
         <DeltaPill delta={delta} compact />
-        {example ? (
-          <ExampleBadge className="scale-90 origin-left" />
-        ) : (
-          <ProvenanceBadge value={value} />
-        )}
+        {example ? <ExampleBadge /> : <ProvenanceBadge value={value} />}
       </div>
       {!example && (
-        <div className="mt-1 font-mono text-[9px] text-zinc-600">
+        <div className="mt-1.5 text-[10px] text-slate-400">
           as of {value.asOf}
           {value.stale ? " · stale fallback" : ""}
         </div>

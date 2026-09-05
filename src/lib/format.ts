@@ -1,9 +1,9 @@
 import type { Delta } from "@/data/types";
 
 export function deltaClass(direction: Delta["direction"]): string {
-  if (direction === "up") return "text-emerald-400";
-  if (direction === "down") return "text-rose-400";
-  return "text-zinc-400";
+  if (direction === "up") return "text-[#16a34a]";
+  if (direction === "down") return "text-[#dc2626]";
+  return "text-slate-500";
 }
 
 export function deltaArrow(direction: Delta["direction"]): string {
@@ -13,13 +13,15 @@ export function deltaArrow(direction: Delta["direction"]): string {
 }
 
 export function urgencyClass(urgency: "high" | "medium" | "low"): string {
-  if (urgency === "high") return "border-amber-400/40 bg-amber-400/10 text-amber-200";
-  if (urgency === "medium") return "border-sky-400/40 bg-sky-400/10 text-sky-200";
-  return "border-zinc-500/40 bg-zinc-500/10 text-zinc-300";
+  if (urgency === "high")
+    return "border-amber-200 bg-amber-50 text-amber-800";
+  if (urgency === "medium")
+    return "border-sky-200 bg-sky-50 text-sky-800";
+  return "border-slate-200 bg-slate-50 text-slate-600";
 }
 
 export function modeClass(mode: "Mature" | "Emerging"): string {
   if (mode === "Emerging")
-    return "border-violet-400/40 bg-violet-400/10 text-violet-200";
-  return "border-zinc-500/40 bg-zinc-500/10 text-zinc-300";
+    return "border-violet-200 bg-violet-50 text-violet-700";
+  return "border-slate-200 bg-slate-50 text-slate-600";
 }

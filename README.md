@@ -39,9 +39,11 @@ No API keys required for public metric sources.
 
 ## Homepage UX
 
-- Primary browse is two segregated grids: **Mature** then **Emerging** (`sector.mode`).
-- Each home card shows **at most 2 metrics**: North Star + one secondary (prefer live/curated among capital / infra; else the stronger EXAMPLE signal). Talent/hiring, policy toggle, source chips, and full “why it moved” live on **sector detail**.
-- Compact chip strip + Global pulse (wired live/curated first, EXAMPLE movers below).
+- Light RWA.xyz-style analytics UI: near-white page, white cards, cobalt accents, green/red deltas.
+- Title **Global Market Overview** + welcome line; top **KPI strip** (5 large tiles) from market pulse.
+- Segmented **Mature | Emerging | All** filter; segregated Mature / Emerging card blocks; compact **sector league table**.
+- Each home card shows **at most 2 metrics**: North Star + one secondary. Provenance badges are quiet small text (Live / Curated / EXAMPLE).
+- Detail / Emerging / Brief pages share the same light visual system.
 
 ## Still EXAMPLE DATA
 

@@ -1,13 +1,11 @@
 import Link from "next/link";
 import type { Sector, SectorMetrics } from "@/data/types";
-import { modeClass, urgencyClass } from "@/lib/format";
+import { modeClass } from "@/lib/format";
 import { DeltaPill } from "./DeltaPill";
 import { ExampleBadge, ProvenanceBadge } from "./ProvenanceBadge";
-import { MetricBlock } from "./MetricBlock";
 
 type MetricSlot = SectorMetrics["capitalPulse"];
 
-/** Home: North Star + one secondary. Prefer live/curated; else stronger of capital vs infra. */
 function pickSecondary(metrics: SectorMetrics): MetricSlot {
   const candidates: MetricSlot[] = [
     metrics.capitalPulse,
@@ -18,10 +16,8 @@ function pickSecondary(metrics: SectorMetrics): MetricSlot {
   if (wired.length === 2) {
     const live = wired.find((m) => m.value.provenance === "live");
     if (live) return live;
-    // both curated — prefer capital pulse as the markets signal
     return metrics.capitalPulse;
   }
-  // both EXAMPLE — pick stronger: non-flat delta beats flat; else capital
   const rank = (m: MetricSlot) => {
     let score = 0;
     if (m.delta.direction !== "flat") score += 2;
@@ -46,25 +42,28 @@ export function SectorCard({ sector }: { sector: Sector }) {
   const whollyExample = allHomeMetricsExample(sector, secondary);
 
   return (
-    <article
-      className="group flex flex-col rounded-xl border border-zinc-800/90 bg-[#0b0e13] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition hover:border-zinc-600/80 hover:shadow-[0_0_40px_-20px_rgba(125,211,252,0.35)]"
-      style={{ borderTopColor: `${sector.accent}55`, borderTopWidth: 2 }}
-    >
-      <div className="mb-3 flex items-start justify-between gap-2">
+    <article className="group flex flex-col rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition hover:border-slate-300">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <Link
-            href={`/sector/${sector.slug}`}
-            className="text-lg font-semibold tracking-tight text-zinc-50 hover:underline"
-          >
-            {sector.name}
-          </Link>
-          <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: sector.accent }}
+            />
+            <Link
+              href={`/sector/${sector.slug}`}
+              className="text-[15px] font-semibold tracking-tight text-slate-900 hover:text-blue-600"
+            >
+              {sector.name}
+            </Link>
+          </div>
+          <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-slate-500">
             {sector.blurb}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <span
-            className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide ${modeClass(
+            className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${modeClass(
               sector.mode
             )}`}
           >
@@ -74,67 +73,63 @@ export function SectorCard({ sector }: { sector: Sector }) {
         </div>
       </div>
 
-      <div
-        className={`mb-2 rounded-lg border p-3 ${
-          ns.isExample
-            ? "border-amber-500/40 border-dashed bg-amber-950/20"
-            : "border-zinc-800/80 bg-black/40"
-        }`}
-      >
-        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
-          North star · {metrics.northStar.label}
+      <div className="mb-3 space-y-1 border-b border-slate-100 pb-3">
+        <div className="text-[11px] font-medium text-slate-400">
+          {metrics.northStar.label}
           {ns.isExample && !metrics.northStar.label.includes("(EXAMPLE)")
             ? " · EXAMPLE"
             : ""}
         </div>
-        <div className="mt-1 flex flex-wrap items-baseline gap-2">
-          <span
-            className={`font-mono text-2xl font-semibold ${
-              ns.isExample ? "text-amber-100/90" : "text-zinc-50"
-            }`}
-          >
+        <div className="flex flex-wrap items-baseline gap-2">
+          <span className="text-[1.65rem] font-light tracking-tight tabular-nums text-slate-900">
             {ns.display}
           </span>
           <DeltaPill delta={metrics.northStar.delta} />
         </div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 pt-0.5">
           {ns.isExample ? (
             <ExampleBadge />
           ) : (
             <>
               <ProvenanceBadge value={ns} />
-              <span className="font-mono text-[9px] text-zinc-600">
-                as of {ns.asOf}
-              </span>
+              <span className="text-[10px] text-slate-400">as of {ns.asOf}</span>
             </>
           )}
         </div>
       </div>
 
-      <div className="mb-3">
-        <MetricBlock
-          label={secondary.label}
-          value={secondary.value}
-          delta={secondary.delta}
-        />
+      <div className="mb-4">
+        <div className="text-[11px] font-medium text-slate-400">
+          {secondary.label}
+          {secondary.value.isExample &&
+          !secondary.label.includes("(EXAMPLE)")
+            ? " · EXAMPLE"
+            : ""}
+        </div>
+        <div className="mt-1 flex flex-wrap items-baseline gap-2">
+          <span className="text-lg font-medium tabular-nums text-slate-900">
+            {secondary.value.display}
+          </span>
+          <DeltaPill delta={secondary.delta} compact />
+        </div>
+        <div className="mt-1">
+          {secondary.value.isExample ? (
+            <ExampleBadge />
+          ) : (
+            <ProvenanceBadge value={secondary.value} />
+          )}
+        </div>
       </div>
 
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span
-          className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide ${urgencyClass(
-            sector.catalyst.urgency
-          )}`}
-        >
-          Catalyst · {sector.catalyst.label}
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <span className="truncate text-xs text-slate-400">
+          {sector.catalyst.label}
         </span>
-      </div>
-
-      <div className="mt-auto">
         <Link
           href={`/sector/${sector.slug}`}
-          className="inline-flex font-mono text-[11px] uppercase tracking-[0.14em] text-emerald-400/90 transition group-hover:text-emerald-300"
+          className="shrink-0 text-[13px] font-medium text-blue-600 transition group-hover:text-blue-700"
         >
-          Full metrics & why it moved →
+          Open →
         </Link>
       </div>
     </article>

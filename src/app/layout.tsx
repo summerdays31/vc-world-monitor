@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s · VC World Monitor",
   },
   description:
-    "Sequoia/a16z-style public world monitor: sector change, value accrual, and early signals. Mixed live/curated public metrics + EXAMPLE DATA placeholders.",
+    "Public world monitor: sector change, value accrual, and early signals. Mixed live/curated public metrics + EXAMPLE DATA placeholders.",
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col bg-[#f8fafc] text-slate-900">
         <Nav />
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
           {children}

@@ -1,14 +1,13 @@
 import type { MetricValue, ProvenanceKind } from "@/data/types";
 
 const styles: Record<ProvenanceKind, string> = {
-  example:
-    "border-amber-400/70 bg-amber-500/20 text-amber-200 shadow-[0_0_0_1px_rgba(251,191,36,0.15)]",
-  live: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300",
-  curated: "border-sky-500/50 bg-sky-500/10 text-sky-300",
+  example: "text-amber-700/90",
+  live: "text-emerald-700/90",
+  curated: "text-sky-700/90",
 };
 
 const labels: Record<ProvenanceKind, string> = {
-  example: "EXAMPLE DATA",
+  example: "EXAMPLE",
   live: "Live",
   curated: "Curated",
 };
@@ -17,7 +16,10 @@ export function ProvenanceBadge({
   value,
   className = "",
 }: {
-  value: Pick<MetricValue, "provenance" | "stale" | "sourceLabel" | "sourceUrl" | "asOf" | "isExample">;
+  value: Pick<
+    MetricValue,
+    "provenance" | "stale" | "sourceLabel" | "sourceUrl" | "asOf" | "isExample"
+  >;
   className?: string;
 }) {
   const kind: ProvenanceKind = value.isExample
@@ -34,24 +36,22 @@ export function ProvenanceBadge({
 
   const inner = (
     <span
-      className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${styles[kind]} ${className}`}
+      className={`inline-flex items-center gap-1 text-[10px] font-medium tracking-wide ${styles[kind]} ${className}`}
       title={title || undefined}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full ${
+        className={`h-1 w-1 rounded-full ${
           kind === "example"
-            ? "bg-amber-400 animate-pulse"
+            ? "bg-amber-500"
             : kind === "live"
-              ? "bg-emerald-400"
-              : "bg-sky-400"
+              ? "bg-emerald-500"
+              : "bg-sky-500"
         }`}
       />
       {labels[kind]}
       {value.stale ? " · stale" : ""}
       {value.sourceLabel && kind !== "example" ? (
-        <span className="normal-case tracking-normal opacity-80">
-          · {value.sourceLabel}
-        </span>
+        <span className="font-normal text-slate-400">· {value.sourceLabel}</span>
       ) : null}
     </span>
   );
@@ -62,7 +62,7 @@ export function ProvenanceBadge({
         href={value.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex hover:opacity-90"
+        className="inline-flex hover:opacity-80"
       >
         {inner}
       </a>

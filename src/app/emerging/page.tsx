@@ -10,25 +10,25 @@ export const metadata: Metadata = {
 };
 
 const statusStyles = {
-  hot: "border-rose-400/40 bg-rose-400/10 text-rose-200",
-  warming: "border-amber-400/40 bg-amber-400/10 text-amber-200",
-  watch: "border-zinc-500/40 bg-zinc-500/10 text-zinc-300",
+  hot: "border-rose-200 bg-rose-50 text-rose-800",
+  warming: "border-amber-200 bg-amber-50 text-amber-800",
+  watch: "border-slate-200 bg-slate-50 text-slate-600",
 } as const;
 
 export default function EmergingPage() {
   return (
     <div className="space-y-8">
       <header className="max-w-3xl space-y-3">
-        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-violet-300/90">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-600">
           Early-signal kit
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Emerging categories
         </h1>
-        <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+        <p className="text-[15px] leading-relaxed text-slate-500">
           A repeatable ladder for spotting value accrual before the theme
           becomes a mature tile:{" "}
-          <span className="text-zinc-200">
+          <span className="font-medium text-slate-700">
             search → creators → capital into enablers → unit economics → export →
             regulation → public comps
           </span>
@@ -37,8 +37,8 @@ export default function EmergingPage() {
         </p>
       </header>
 
-      <section className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-5">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <h2 className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
           How to use the kit
         </h2>
         <ol className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -50,25 +50,29 @@ export default function EmergingPage() {
           ].map(([t, b]) => (
             <li
               key={t}
-              className="rounded-lg border border-zinc-800/80 bg-black/30 p-3"
+              className="rounded-lg border border-slate-200 bg-slate-50/60 p-3"
             >
-              <div className="font-mono text-xs text-emerald-300/90">{t}</div>
-              <p className="mt-1 text-sm text-zinc-400">{b}</p>
+              <div className="text-xs font-medium text-blue-600">{t}</div>
+              <p className="mt-1 text-[13px] text-slate-500">{b}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-1">
+      <section className="grid gap-5">
         {emergingSignals.map((card) => (
           <article
             key={card.id}
-            className="rounded-xl border border-zinc-800 bg-[#0b0e13] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]"
+            className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
           >
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-semibold text-zinc-50">{card.title}</h2>
-                <p className="mt-1 max-w-3xl text-sm text-zinc-400">{card.thesis}</p>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  {card.title}
+                </h2>
+                <p className="mt-1 max-w-3xl text-[13px] text-slate-500">
+                  {card.thesis}
+                </p>
               </div>
               <ExampleBadge />
             </div>
@@ -80,20 +84,22 @@ export default function EmergingPage() {
                   className={`max-w-xs rounded-lg border px-3 py-2 ${statusStyles[st.status]}`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[10px] uppercase tracking-wide">
+                    <span className="text-[10px] font-medium uppercase tracking-wide">
                       {st.name}
                     </span>
-                    <span className="font-mono text-[9px] uppercase opacity-70">
+                    <span className="text-[9px] uppercase opacity-70">
                       {st.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs leading-snug opacity-90">{st.signal}</p>
+                  <p className="mt-1 text-xs leading-snug opacity-90">
+                    {st.signal}
+                  </p>
                 </div>
               ))}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-wide text-zinc-600">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
                 Related sectors
               </span>
               {card.relatedSectors.map((slug) => {
@@ -102,7 +108,7 @@ export default function EmergingPage() {
                   <Link
                     key={slug}
                     href={`/sector/${slug}`}
-                    className="rounded-full border border-zinc-700 px-2.5 py-0.5 font-mono text-[11px] text-zinc-300 hover:border-zinc-500 hover:text-white"
+                    className="rounded-full border border-slate-200 px-2.5 py-0.5 text-[12px] text-blue-600 hover:border-blue-300 hover:bg-blue-50"
                   >
                     {s?.shortName ?? slug}
                   </Link>
