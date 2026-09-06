@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "VC World Monitor",
-    template: "%s · VC World Monitor",
+    default: "World Monitor",
+    template: "%s · World Monitor",
   },
   description:
-    "Public world monitor: sector change, value accrual, and early signals. Mixed live/curated public metrics + example placeholders.",
+    "Live and curated public signals across AI, infrastructure, and capital.",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-[#f8fafc] text-slate-900">
         <Nav />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 sm:px-6 sm:py-6">
           {children}
         </main>
         <Footer />

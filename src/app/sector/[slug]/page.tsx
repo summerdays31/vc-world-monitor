@@ -63,12 +63,8 @@ export default async function SectorDetailPage({
             {sector.mode}
           </span>
           {whollyExample ? (
-            <span className="text-[10px] text-slate-400">example data</span>
-          ) : (
-            <span className="text-[10px] text-slate-400">
-              includes wired metrics
-            </span>
-          )}
+            <span className="text-[10px] text-slate-400">example</span>
+          ) : null}
           <Link
             href="/"
             className="ml-auto text-[12px] font-medium text-slate-400 hover:text-blue-600"
