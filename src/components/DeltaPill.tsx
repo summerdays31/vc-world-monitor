@@ -1,5 +1,5 @@
 import type { Delta } from "@/data/types";
-import { deltaArrow, deltaClass, isMeaningfulDelta } from "@/lib/format";
+import { deltaClass, isMeaningfulDelta } from "@/lib/format";
 
 function periodCaption(period: string): string {
   const p = period.trim();
@@ -11,7 +11,7 @@ function periodCaption(period: string): string {
   return p;
 }
 
-/** Quiet secondary voice — tabular figure, no color theater. */
+/** Quiet secondary voice — tabular figure; accent only on real direction. */
 export function DeltaPill({
   delta,
   compact = false,
@@ -23,7 +23,9 @@ export function DeltaPill({
 }) {
   if (!isMeaningfulDelta(delta)) {
     return (
-      <span className={`tabular-nums text-slate-400 ${compact ? "text-[11px]" : "text-[12px]"}`}>
+      <span
+        className={`tabular-nums text-slate-400 ${compact ? "text-[11px]" : "text-[12px]"}`}
+      >
         —
       </span>
     );
@@ -37,14 +39,9 @@ export function DeltaPill({
         delta.direction
       )} ${compact ? "text-[11px]" : "text-[12px]"}`}
     >
-      <span aria-hidden className="opacity-50">
-        {deltaArrow(delta.direction)}
-      </span>
       <span className="font-medium">{delta.display}</span>
       {!compact && showPeriod && period ? (
-        <span className="text-[11px] font-normal text-slate-400">
-          {period}
-        </span>
+        <span className="text-[11px] font-normal text-slate-400">{period}</span>
       ) : null}
     </span>
   );

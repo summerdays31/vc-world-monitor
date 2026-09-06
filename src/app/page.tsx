@@ -1,5 +1,4 @@
 import { HomeBrowse, type ModeFilter } from "@/components/HomeBrowse";
-import { PulseRow } from "@/components/PulseRow";
 import { getMonitorBundle } from "@/lib/adapters";
 
 /** Page HTML can regenerate hourly on traffic; live fetches are daily + cron-warmed. */
@@ -18,21 +17,16 @@ export default async function HomePage({
 }) {
   const sp = await searchParams;
   const mode = parseMode(sp.mode);
-  const { sectors, pulse, asOf } = await getMonitorBundle();
+  const { sectors, asOf } = await getMonitorBundle();
   const mature = sectors.filter((s) => s.mode === "Mature");
   const emerging = sectors.filter((s) => s.mode === "Emerging");
 
   return (
-    <div className="space-y-5">
-      {(mode === "All" || mode === "Mature") && (
-        <PulseRow items={pulse} asOf={asOf} />
-      )}
-      <HomeBrowse
-        mature={mature}
-        emerging={emerging}
-        mode={mode}
-        asOf={asOf}
-      />
-    </div>
+    <HomeBrowse
+      mature={mature}
+      emerging={emerging}
+      mode={mode}
+      asOf={asOf}
+    />
   );
 }

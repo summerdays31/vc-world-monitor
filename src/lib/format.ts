@@ -1,9 +1,9 @@
 import type { Delta } from "@/data/types";
 
-/** Deltas as secondary voice — not traffic-light garnish. */
+/** Controlled accent — green/red only on real directional change. */
 export function deltaClass(direction: Delta["direction"]): string {
-  if (direction === "up") return "text-slate-600";
-  if (direction === "down") return "text-slate-600";
+  if (direction === "up") return "text-emerald-700";
+  if (direction === "down") return "text-red-700";
   return "text-slate-400";
 }
 

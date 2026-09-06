@@ -7,8 +7,8 @@
   --muted: #64748b;
   --border: #e2e8f0;
   --accent: #334155;
-  --up: #475569;
-  --down: #475569;
+  --up: #047857;
+  --down: #b91c1c;
 }
 
 @theme inline {
@@ -43,10 +43,4 @@ body {
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
-}
-
-/* Sharper figures wherever mono is used */
-.font-mono {
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.01em;
 }

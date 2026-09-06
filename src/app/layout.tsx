@@ -33,9 +33,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[#f8fafc] font-sans text-slate-900">
+      <body className="min-h-full bg-[#f8fafc] font-sans text-slate-900">
         <Nav />
-        <main className="mx-auto w-full max-w-[760px] flex-1 px-4 py-5 sm:px-6 sm:py-6">
+        <main className="mx-auto w-full max-w-[680px] px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
           {children}
         </main>
         <Footer />

@@ -38,7 +38,7 @@ function MetricLane({
         <DeltaPill delta={delta} compact showPeriod={false} />
       </div>
       <div
-        className={`col-span-2 font-mono tracking-tight text-slate-900 [font-variant-numeric:tabular-nums] ${
+        className={`col-span-2 tracking-tight text-slate-900 tabular-nums ${
           primary
             ? "text-[1.55rem] font-medium leading-none"
             : "text-[15px] font-medium leading-none text-slate-700"
