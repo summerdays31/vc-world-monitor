@@ -3,37 +3,46 @@ import { globalPulseExample } from "@/data/sectors";
 import { fetchGpuRentalSpot } from "./gpu";
 import { fetchInterconnectQueue } from "./interconnect";
 import { fetchGlobalVcDeployed } from "./vc";
+import { fetchUsNationalDebt, fetchFy26Deficit } from "./debt";
 import type { LiveMetricPayload } from "@/data/curated/fallbacks";
 
 export type WiredMetricKey =
   | "ai.northStar"
   | "data-center.northStar"
-  | "capital-formation.northStar";
+  | "capital-formation.northStar"
+  | "capital-formation.capitalPulse"
+  | "capital-formation.infraOrAdoption";
 
 export type LiveBundle = {
   gpu: LiveMetricPayload;
   interconnect: LiveMetricPayload;
   vc: LiveMetricPayload;
+  debt: LiveMetricPayload;
+  deficit: LiveMetricPayload;
   fetchedAt: string;
 };
 
 export async function fetchLiveBundle(): Promise<LiveBundle> {
-  const [gpu, interconnect, vc] = await Promise.all([
+  const [gpu, interconnect, vc, debt, deficit] = await Promise.all([
     fetchGpuRentalSpot(),
     fetchInterconnectQueue(),
     fetchGlobalVcDeployed(),
+    fetchUsNationalDebt(),
+    fetchFy26Deficit(),
   ]);
   return {
     gpu,
     interconnect,
     vc,
+    debt,
+    deficit,
     fetchedAt: new Date().toISOString(),
   };
 }
 
 function applyMetric(
   sector: Sector,
-  slot: "northStar" | "infraOrAdoption",
+  slot: "northStar" | "infraOrAdoption" | "capitalPulse",
   payload: LiveMetricPayload,
   label?: string
 ) {
@@ -169,24 +178,55 @@ export function applyLiveOverlays(
     }
 
     if (s.slug === "capital-formation") {
+      // Debt is capital north star; keep Global VC as wired capitalPulse;
+      // FY26 deficit as quiet infra secondary.
+      applyMetric(copy, "northStar", live.debt, "US national debt");
       applyMetric(
         copy,
-        "northStar",
+        "capitalPulse",
         live.vc,
         "Global VC deployed (H1 YTD)"
       );
+      applyMetric(
+        copy,
+        "infraOrAdoption",
+        live.deficit,
+        "FY26 federal deficit"
+      );
       copy.whyItMoved =
-        "Dealroom H1’26 YTD global VC level is the wired capital signal (no misleading H1-vs-FY %); IPO window and private credit remain EXAMPLE narrative.";
+        "Gross US national debt at $40.10T is the curated capital/fiscal north star (Kalshi CDF); Dealroom H1’26 YTD global VC remains the wired private-capital pulse.";
+      copy.catalyst = {
+        id: "cf-c-debt",
+        label: "US national debt $40.10T",
+        urgency: "high",
+        note: live.debt.note ?? "Kalshi Citizen Debt Forecast",
+      };
+      copy.catalysts = [
+        {
+          id: "cf-c-debt",
+          label: "US national debt $40.10T",
+          urgency: "high",
+          note: live.debt.note,
+        },
+        ...s.catalysts.filter((c) => c.id !== "cf-c-debt"),
+      ];
       copy.sources = [
+        {
+          label: live.debt.value.sourceLabel ?? "Kalshi CDF",
+          kind: "curated",
+          url: live.debt.value.sourceUrl,
+        },
         {
           label: live.vc.value.sourceLabel ?? "Dealroom",
           kind: live.vc.value.provenance === "live" ? "live" : "curated",
           url: live.vc.value.sourceUrl,
         },
-        ...s.sources.filter((x) => !/VC deployed/i.test(x.label)),
+        ...s.sources.filter(
+          (x) => !/VC deployed|national debt|Kalshi|Mansour/i.test(x.label)
+        ),
       ];
       copy.methodology =
-        "North star is Global VC H1 YTD from Dealroom’s public Global guide (scraped daily with curated fallback). Period is H1’26 YTD level only unless Dealroom publishes H1’25. Other capital metrics remain EXAMPLE DATA.";
+        "North star is gross US national debt ($40.10T) curated from the Kalshi Citizen Debt Forecast / Tarek Mansour launch post (2026-09-03) — not EXAMPLE. Capital pulse is Global VC H1 YTD from Dealroom (live scrape + curated fallback). FY26 deficit $1.9T is the same curated fiscal post. Other capital figures remain EXAMPLE DATA.";
     }
 
     // Harden EXAMPLE labels on remaining example north stars
@@ -203,7 +243,7 @@ export function applyLiveOverlays(
   });
 }
 
-/** Build global pulse: three wired metrics first, then non-conflicting EXAMPLE movers. */
+/** Build global pulse: wired instruments first, then non-conflicting EXAMPLE movers. */
 export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
   const wired: PulseItem[] = [
     {
@@ -257,6 +297,23 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
       stale: live.vc.value.stale,
       sourceLabel: live.vc.value.sourceLabel,
     },
+    {
+      id: "live-debt",
+      sectorSlug: "capital-formation",
+      sectorName: "Capital",
+      label: "US national debt",
+      valueDisplay: live.debt.value.display,
+      delta: live.debt.delta ?? {
+        display: "",
+        direction: "flat" as const,
+        period: "",
+        isExample: false,
+      },
+      isExample: false,
+      provenance: live.debt.value.provenance,
+      stale: live.debt.value.stale,
+      sourceLabel: live.debt.value.sourceLabel,
+    },
   ];
 
   // Drop EXAMPLE pulse items that conflict with wired signals (e.g. old GPU −22%)
@@ -264,7 +321,7 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
     if (p.sectorSlug === "ai" && /GPU/i.test(p.label)) return false;
     if (p.sectorSlug === "data-center" && /Interconnect|queue/i.test(p.label))
       return false;
-    if (p.sectorSlug === "capital-formation" && /VC deployed|Global VC/i.test(p.label))
+    if (p.sectorSlug === "capital-formation" && /VC deployed|Global VC|national debt|debt/i.test(p.label))
       return false;
     return true;
   });
@@ -272,4 +329,10 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
   return [...wired, ...exampleSafe];
 }
 
-export { fetchGpuRentalSpot, fetchInterconnectQueue, fetchGlobalVcDeployed };
+export {
+  fetchGpuRentalSpot,
+  fetchInterconnectQueue,
+  fetchGlobalVcDeployed,
+  fetchUsNationalDebt,
+  fetchFy26Deficit,
+};

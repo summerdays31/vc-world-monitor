@@ -8,21 +8,32 @@ type Cell = {
   metric: string;
   href: string;
   payload: LiveMetricPayload;
+  /** Optional muted secondary line (e.g. FY26 deficit under debt). */
+  muted?: string | null;
 };
 
 /**
- * Three equal instrument panels — north star only.
- * Provenance lives in-cell; no secondary rows, no em-dash placeholders.
+ * Four equal instrument panels — north star figures.
+ * Provenance lives in-cell; optional muted secondary under debt only.
  */
 export function InstrumentBand({
   gpu,
   interconnect,
   vc,
+  debt,
+  deficit,
 }: {
   gpu: LiveMetricPayload;
   interconnect: LiveMetricPayload;
   vc: LiveMetricPayload;
+  debt: LiveMetricPayload;
+  deficit?: LiveMetricPayload | null;
 }) {
+  const deficitLine =
+    deficit && !deficit.value.isExample
+      ? `FY26 deficit ${deficit.value.display}`
+      : null;
+
   const cells: Cell[] = [
     {
       key: "gpu",
@@ -45,12 +56,20 @@ export function InstrumentBand({
       href: "/sector/capital-formation",
       payload: vc,
     },
+    {
+      key: "debt",
+      sector: "Fiscal",
+      metric: "US national debt",
+      href: "/sector/capital-formation",
+      payload: debt,
+      muted: deficitLine,
+    },
   ];
 
   return (
     <section
       aria-label="Live instruments"
-      className="grid grid-cols-1 border border-[#d9d4cb] sm:grid-cols-3"
+      className="grid grid-cols-1 divide-y divide-[#d9d4cb] border border-[#d9d4cb] sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4"
     >
       {cells.map((cell, i) => {
         const { value, delta } = cell.payload;
@@ -61,13 +80,23 @@ export function InstrumentBand({
           .filter(Boolean)
           .join(" · ");
 
+        // sm 2×2: left border on odd; top border on bottom row
+        // lg 1×4: left border on all but first; clear sm top
+        const edge =
+          [
+            i % 2 === 1 ? "sm:border-l sm:border-[#d9d4cb]" : "",
+            i >= 2 ? "sm:border-t sm:border-[#d9d4cb]" : "",
+            i > 0 ? "lg:border-l lg:border-[#d9d4cb]" : "",
+            "lg:border-t-0",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
         return (
           <Link
             key={cell.key}
             href={cell.href}
-            className={`group flex min-h-[11.5rem] flex-col justify-between gap-6 px-5 py-6 transition hover:bg-[#f0eee8]/70 sm:min-h-[13.5rem] sm:px-6 sm:py-7 ${
-              i > 0 ? "border-t border-[#d9d4cb] sm:border-t-0 sm:border-l" : ""
-            }`}
+            className={`group flex min-h-[11.5rem] flex-col justify-between gap-6 px-5 py-6 transition hover:bg-[#f0eee8]/70 sm:min-h-[13rem] sm:px-5 sm:py-7 ${edge}`}
           >
             <div className="space-y-1.5">
               <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#8a847a]">
@@ -78,9 +107,9 @@ export function InstrumentBand({
               </p>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-[2rem] font-semibold leading-none tracking-tight text-[#0a0a0a] tabular-nums sm:text-[2.25rem]">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span className="text-[1.85rem] font-semibold leading-none tracking-tight text-[#0a0a0a] tabular-nums xl:text-[2.05rem]">
                   {value.display}
                 </span>
                 {showDelta ? (
@@ -93,6 +122,11 @@ export function InstrumentBand({
                   </span>
                 ) : null}
               </div>
+              {cell.muted ? (
+                <p className="text-[11px] leading-snug text-[#a39e94]">
+                  {cell.muted}
+                </p>
+              ) : null}
               <p className="text-[11px] leading-snug text-[#8a847a]">
                 {provenance}
               </p>

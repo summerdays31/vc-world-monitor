@@ -4,7 +4,7 @@ import { InstrumentBand } from "./InstrumentBand";
 export type ModeFilter = "Mature" | "Emerging" | "All";
 
 /**
- * Homepage = three instrument signals only.
+ * Homepage = four instrument signals.
  * No ledger, no duplicate metrics, no methodology essay, no vacant canvas.
  */
 export function HomeBrowse({
@@ -19,6 +19,8 @@ export function HomeBrowse({
     gpu: LiveMetricPayload;
     interconnect: LiveMetricPayload;
     vc: LiveMetricPayload;
+    debt: LiveMetricPayload;
+    deficit?: LiveMetricPayload | null;
   };
 }) {
   return (
@@ -27,6 +29,8 @@ export function HomeBrowse({
         gpu={instruments.gpu}
         interconnect={instruments.interconnect}
         vc={instruments.vc}
+        debt={instruments.debt}
+        deficit={instruments.deficit}
       />
 
       <footer className="mt-5 border-t border-[#e5e2db] pt-3">

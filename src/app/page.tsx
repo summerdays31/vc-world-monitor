@@ -27,6 +27,8 @@ export default async function HomePage({
         gpu: live.gpu,
         interconnect: live.interconnect,
         vc: live.vc,
+        debt: live.debt,
+        deficit: live.deficit,
       }}
     />
   );

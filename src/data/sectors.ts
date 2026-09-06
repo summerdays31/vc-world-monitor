@@ -866,19 +866,19 @@ export const sectors: Sector[] = [
     accent: "#fde047",
     metrics: {
       northStar: {
-        label: "Global VC deployed (H1 YTD)",
-        value: v("$186B", 186, "USD_B"),
-        delta: d("level", "flat", "H1\u201926 YTD"),
+        label: "US national debt",
+        value: v("$40.10T", 40.1, "CUSTOM"),
+        delta: d("~18y", "up", "2nd $20T"),
       },
       capitalPulse: {
-        label: "Private credit AUM add",
-        value: v("$42B", 42, "USD_B"),
-        delta: d("+11%", "up"),
+        label: "Global VC deployed (H1 YTD)",
+        value: v("$186B", 186, "USD_B"),
+        delta: d("", "flat", "H1’26 YTD"),
       },
       infraOrAdoption: {
-        label: "IPO proceeds (YTD)",
-        value: v("$38B", 38, "USD_B"),
-        delta: d("+44%", "up", "YoY"),
+        label: "FY26 federal deficit",
+        value: v("$1.9T", 1.9, "CUSTOM"),
+        delta: d("5.9% GDP", "up", "FY26"),
       },
       talentOrAdoption: {
         label: "Investor / IB openings",
@@ -914,8 +914,8 @@ export const sectors: Sector[] = [
       China: { stance: "Domestic listings", note: "Fundraising controls" },
       EU: { stance: "Listing Act", note: "Capital markets union" },
     },
-    sources: [{ label: "EXAMPLE — VC deployed", kind: "example" }],
-    methodology: "North star is Global VC H1 YTD (wired live/curated via Dealroom when available). Other capital figures remain EXAMPLE DATA.",
+    sources: [{ label: "EXAMPLE — capital seed", kind: "example" }],
+    methodology: "North star is US national debt (curated Kalshi CDF when wired). Global VC H1 YTD is capital pulse; FY26 deficit is fiscal secondary. Other capital figures remain EXAMPLE DATA.",
   },
   {
     slug: "bio-longevity",

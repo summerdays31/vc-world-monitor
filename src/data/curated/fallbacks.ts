@@ -85,3 +85,55 @@ export const vcFallback: LiveMetricPayload = {
   note:
     "H1 2026 YTD global VC from Dealroom public guide ($506.2B). No H1’25 comparable on the public page — no Δ (not vs FY25). Alternate cite: KPMG Venture Pulse Q2’26 mid-year $560.4B. Refresh after each closed quarter.",
 };
+
+/**
+ * US national debt crossed $40T — curated from Tarek Mansour / Kalshi
+ * Citizen Debt Forecast launch post (2026-09-03). First $20T took hundreds
+ * of years; next $20T ~18 years. Do not invent; refresh only from cited post
+ * or Treasury Fiscal Data.
+ */
+export const debtFallback: LiveMetricPayload = {
+  value: {
+    display: "$40.10T",
+    numeric: 40.1,
+    unit: "CUSTOM",
+    isExample: false,
+    provenance: "curated",
+    asOf: "2026-09-03",
+    sourceLabel: "Kalshi CDF",
+    sourceUrl: "https://x.com/mansourtarek_/status/2095562339479437369",
+  },
+  delta: {
+    display: "~18y",
+    direction: "up",
+    period: "2nd $20T",
+    isExample: false,
+  },
+  note:
+    "Gross US national debt $40.10T (Kalshi CDF / Mansour launch 2026-09-03). First $20T: hundreds of years; next $20T: ~18 years. Also cited: intragovernmental $7.68T; +$78,703/sec; $95,364 per citizen; CDF 2036 debt/GDP 118% vs CBO 120%.",
+};
+
+/**
+ * FY 2026 fiscal snapshot from the same Mansour / Kalshi post:
+ * made $5.6T, spent $7.4T, deficit $1.9T (5.9% of GDP).
+ */
+export const deficitFallback: LiveMetricPayload = {
+  value: {
+    display: "$1.9T",
+    numeric: 1.9,
+    unit: "CUSTOM",
+    isExample: false,
+    provenance: "curated",
+    asOf: "2026-09-03",
+    sourceLabel: "Kalshi CDF",
+    sourceUrl: "https://x.com/mansourtarek_/status/2095562339479437369",
+  },
+  delta: {
+    display: "5.9% GDP",
+    direction: "up",
+    period: "FY26",
+    isExample: false,
+  },
+  note:
+    "FY 2026: made $5.6T, spent $7.4T, deficit $1.9T (5.9% of GDP). Spend mix: $4.4T mandatory (60%), $1.9T discretionary (26%), $1T net interest (15%). Same curated post as US debt $40T.",
+};
