@@ -1,6 +1,15 @@
 import Link from "next/link";
 import type { Sector } from "@/data/types";
 import { cleanLabel } from "@/lib/homeMetrics";
+import { formatDeltaCell } from "@/lib/format";
+
+/** Fixed importance order for wired home rows; then alpha. */
+const IMPORTANCE: Record<string, number> = {
+  ai: 0,
+  "data-center": 1,
+  "capital-formation": 2,
+  "compute-semiconductors": 3,
+};
 
 /**
  * Mature dense league — Sector, Metric, Value, Δ.
@@ -12,9 +21,10 @@ export function SectorLeagueTable({
   sectors: Sector[];
 }) {
   const ranked = [...sectors].sort((a, b) => {
-    const an = a.metrics.northStar.value.numeric ?? -Infinity;
-    const bn = b.metrics.northStar.value.numeric ?? -Infinity;
-    return bn - an;
+    const ai = IMPORTANCE[a.slug] ?? 50;
+    const bi = IMPORTANCE[b.slug] ?? 50;
+    if (ai !== bi) return ai - bi;
+    return a.name.localeCompare(b.name);
   });
 
   if (ranked.length === 0) return null;
@@ -22,13 +32,19 @@ export function SectorLeagueTable({
   return (
     <section>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[520px] border-collapse text-left">
+        <table className="w-full min-w-[480px] table-fixed border-collapse text-left">
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[40%]" />
+            <col className="w-[18%]" />
+            <col className="w-[14%]" />
+          </colgroup>
           <thead>
-            <tr className="border-b border-slate-200 text-[11px] text-slate-400">
-              <th className="py-2 pr-4 font-medium">Sector</th>
-              <th className="py-2 pr-4 font-medium">Metric</th>
-              <th className="py-2 pr-4 text-right font-medium">Value</th>
-              <th className="py-2 text-right font-medium">Δ</th>
+            <tr className="border-b border-slate-300 text-[11px] tracking-wide text-slate-500">
+              <th className="pb-1.5 pr-3 font-semibold">Sector</th>
+              <th className="pb-1.5 pr-3 font-semibold">Metric</th>
+              <th className="pb-1.5 pr-3 text-right font-semibold">Value</th>
+              <th className="pb-1.5 text-right font-semibold">Δ</th>
             </tr>
           </thead>
           <tbody>
@@ -37,24 +53,24 @@ export function SectorLeagueTable({
               return (
                 <tr
                   key={s.slug}
-                  className="border-b border-slate-100 last:border-slate-200"
+                  className="border-b border-slate-200/80 last:border-slate-300"
                 >
-                  <td className="py-2.5 pr-4 align-baseline">
+                  <td className="py-1.5 pr-3 align-baseline">
                     <Link
                       href={`/sector/${s.slug}`}
-                      className="text-[14px] font-medium text-slate-900 hover:underline"
+                      className="text-[15px] font-semibold text-slate-900 hover:underline"
                     >
                       {s.name}
                     </Link>
                   </td>
-                  <td className="max-w-[16rem] truncate py-2.5 pr-4 align-baseline text-[13px] text-slate-500">
+                  <td className="truncate py-1.5 pr-3 align-baseline text-[12px] text-slate-500">
                     {cleanLabel(ns.label)}
                   </td>
-                  <td className="py-2.5 pr-4 text-right align-baseline font-mono text-[15px] font-medium tracking-tight text-slate-900 [font-variant-numeric:tabular-nums]">
+                  <td className="py-1.5 pr-3 text-right align-baseline text-[15px] font-semibold tabular-nums tracking-tight text-slate-900">
                     {ns.value.display}
                   </td>
-                  <td className="py-2.5 text-right align-baseline font-mono text-[12px] text-slate-400 [font-variant-numeric:tabular-nums]">
-                    {ns.delta.display}
+                  <td className="py-1.5 text-right align-baseline text-[12px] tabular-nums text-slate-400">
+                    {formatDeltaCell(ns.delta)}
                   </td>
                 </tr>
               );

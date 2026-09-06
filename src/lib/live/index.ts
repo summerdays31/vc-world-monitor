@@ -40,7 +40,13 @@ function applyMetric(
   const m = sector.metrics[slot];
   if (label) m.label = label;
   m.value = payload.value;
-  m.delta = payload.delta;
+  // Schema still requires Delta; empty display = no change (UI shows —)
+  m.delta = payload.delta ?? {
+    display: "",
+    direction: "flat",
+    period: "",
+    isExample: false,
+  };
 }
 
 function ensureExampleLabel(label: string): string {
@@ -206,7 +212,12 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
       sectorName: "AI",
       label: "GPU rental spot (H100-eq)",
       valueDisplay: live.gpu.value.display,
-      delta: live.gpu.delta,
+      delta: live.gpu.delta ?? {
+        display: "",
+        direction: "flat" as const,
+        period: "",
+        isExample: false,
+      },
       isExample: false,
       provenance: live.gpu.value.provenance,
       stale: live.gpu.value.stale,
@@ -218,7 +229,12 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
       sectorName: "Data center",
       label: "Interconnect queue (median IR→COD)",
       valueDisplay: live.interconnect.value.display,
-      delta: live.interconnect.delta,
+      delta: live.interconnect.delta ?? {
+        display: "",
+        direction: "flat" as const,
+        period: "",
+        isExample: false,
+      },
       isExample: false,
       provenance: live.interconnect.value.provenance,
       stale: live.interconnect.value.stale,
@@ -230,7 +246,12 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
       sectorName: "Capital",
       label: "Global VC deployed (H1 YTD)",
       valueDisplay: live.vc.value.display,
-      delta: live.vc.delta,
+      delta: live.vc.delta ?? {
+        display: "",
+        direction: "flat" as const,
+        period: "",
+        isExample: false,
+      },
       isExample: false,
       provenance: live.vc.value.provenance,
       stale: live.vc.value.stale,

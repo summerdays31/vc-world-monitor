@@ -23,11 +23,16 @@ export default async function HomePage({
   const emerging = sectors.filter((s) => s.mode === "Emerging");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {(mode === "All" || mode === "Mature") && (
         <PulseRow items={pulse} asOf={asOf} />
       )}
-      <HomeBrowse mature={mature} emerging={emerging} mode={mode} />
+      <HomeBrowse
+        mature={mature}
+        emerging={emerging}
+        mode={mode}
+        asOf={asOf}
+      />
     </div>
   );
 }

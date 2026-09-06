@@ -16,6 +16,7 @@ type GpuType = {
  * Live H100-equivalent spot: RunPod public GraphQL (no API key).
  * Prefer H100 SXM / NVL on-demand floor; median of available H100 prices.
  * Cached via Next fetch revalidate (daily); Vercel cron also warms daily.
+ * No period Δ available from the public endpoint — delta is null.
  */
 export async function fetchGpuRentalSpot(): Promise<LiveMetricPayload> {
   try {
@@ -61,12 +62,7 @@ export async function fetchGpuRentalSpot(): Promise<LiveMetricPayload> {
         sourceLabel: "RunPod GraphQL",
         sourceUrl: "https://www.runpod.io/pricing",
       },
-      delta: {
-        display: "spot",
-        direction: "flat",
-        period: "H100 on-demand floor",
-        isExample: false,
-      },
+      delta: null,
       note: `Live RunPod community on-demand floor across ${h100
         .map((g) => g.displayName)
         .join(", ")}.`,

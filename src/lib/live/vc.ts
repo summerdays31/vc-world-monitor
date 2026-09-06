@@ -8,7 +8,7 @@ const DEALROOM_URL = "https://dealroom.co/guides/global";
  *
  * Methodology: show the H1’26 level only. Do not compare H1 YTD to full-year
  * FY25 (misleading %). Prefer H1’26 vs H1’25 only if Dealroom publishes it —
- * the public guide currently does not, so we never invent a prior-year figure.
+ * the public guide currently does not, so delta stays null (never "level").
  * Revalidate daily.
  */
 export async function fetchGlobalVcDeployed(): Promise<LiveMetricPayload> {
@@ -51,12 +51,7 @@ export async function fetchGlobalVcDeployed(): Promise<LiveMetricPayload> {
     const ytdNum = parseFloat(ytd[1]);
     const asOf = "2026-06-30"; // closed H1 / Q2 on Dealroom guide
 
-    let delta: LiveMetricPayload["delta"] = {
-      display: "level",
-      direction: "flat",
-      period: "H1’26 YTD",
-      isExample: false,
-    };
+    let delta: LiveMetricPayload["delta"] = null;
 
     if (h1Prior) {
       const prior = parseFloat(h1Prior[1]);
@@ -87,7 +82,7 @@ export async function fetchGlobalVcDeployed(): Promise<LiveMetricPayload> {
       note: `Dealroom public guide: $${ytdNum}B in first 6 months of 2026 (H1 YTD).${
         h1Prior
           ? ""
-          : " No public H1’25 figure on page — level only (not vs FY25)."
+          : " No public H1’25 figure on page — no Δ (not vs FY25)."
       }`,
     };
   } catch {

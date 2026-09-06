@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PulseItem } from "@/data/types";
+import { formatDeltaCell, isMeaningfulDelta } from "@/lib/format";
 
 function isWired(item: PulseItem): boolean {
   if (item.isExample === false) return true;
@@ -27,7 +28,7 @@ function pickPrimary(wired: PulseItem[]): PulseItem {
 
 /**
  * Single north-star — one enormous figure, one quiet caption.
- * No twin panels, no KPI strip, no costume labels.
+ * One sans family for UI + numbers (tabular). Max two metadata clauses.
  */
 export function PulseRow({
   items,
@@ -48,28 +49,25 @@ export function PulseRow({
         ? "curated"
         : null);
 
-  // Quiet caption: metric · sector · source · as of — never ALL-CAPS ornament.
-  const bits = [
-    primary.label,
-    primary.sectorName,
-    source,
-    asOf ? `as of ${asOf}` : null,
-  ].filter(Boolean);
+  // Max 2 clauses: metric name · as-of date. Source on title/hover only.
+  const bits = [primary.label, asOf ? `as of ${asOf}` : null].filter(Boolean);
+  const titleBits = [primary.sectorName, source].filter(Boolean).join(" · ");
 
   return (
     <section>
       <Link
         href={`/sector/${primary.sectorSlug}`}
-        className="group block max-w-3xl"
+        className="group block"
+        title={titleBits || undefined}
       >
-        <p className="font-mono text-[clamp(3.75rem,13vw,7rem)] font-medium leading-[0.9] tracking-tight text-slate-900 [font-variant-numeric:tabular-nums] group-hover:text-slate-800">
+        <p className="text-[clamp(3.5rem,9vw,4.5rem)] font-semibold leading-[0.95] tracking-tight text-slate-900 tabular-nums group-hover:text-slate-800">
           {primary.valueDisplay}
         </p>
-        <p className="mt-3 text-[13px] leading-snug text-slate-500">
+        <p className="mt-2 text-[12px] leading-snug text-slate-500">
           {bits.join(" · ")}
-          {primary.delta.display ? (
-            <span className="ml-2 font-mono text-[12px] text-slate-400 [font-variant-numeric:tabular-nums]">
-              {primary.delta.display}
+          {isMeaningfulDelta(primary.delta) ? (
+            <span className="ml-2 text-[12px] tabular-nums text-slate-400">
+              {formatDeltaCell(primary.delta)}
             </span>
           ) : null}
         </p>

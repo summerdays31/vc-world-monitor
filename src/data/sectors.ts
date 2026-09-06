@@ -44,7 +44,7 @@ export const sectors: Sector[] = [
       northStar: {
         label: "GPU rental spot (H100-eq)",
         value: v("$1.85/hr", 1.85, "CUSTOM"),
-        delta: d("spot", "flat", "on-demand floor"),
+        delta: d("", "flat", ""),
       },
       capitalPulse: {
         label: "Private rounds (30d)",

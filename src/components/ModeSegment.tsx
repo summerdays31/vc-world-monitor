@@ -4,7 +4,7 @@ export type ModeFilter = "Mature" | "Emerging" | "All";
 
 const OPTIONS: ModeFilter[] = ["Mature", "Emerging", "All"];
 
-/** Quiet text segment — almost invisible chrome. */
+/** Bordered pill segment — active filled dark, inactive muted. */
 export function ModeSegment({
   value,
   onChange,
@@ -16,7 +16,7 @@ export function ModeSegment({
     <div
       role="tablist"
       aria-label="Sector mode filter"
-      className="inline-flex items-center gap-0.5"
+      className="inline-flex items-center rounded-full border border-slate-200 bg-white p-0.5"
     >
       {OPTIONS.map((opt) => {
         const active = value === opt;
@@ -27,10 +27,10 @@ export function ModeSegment({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(opt)}
-            className={`px-2 py-0.5 text-[12px] transition ${
+            className={`rounded-full px-2.5 py-1 text-[11px] transition ${
               active
-                ? "font-medium text-slate-800"
-                : "text-slate-400 hover:text-slate-600"
+                ? "bg-slate-900 font-medium text-white"
+                : "text-slate-500 hover:text-slate-800"
             }`}
           >
             {opt}

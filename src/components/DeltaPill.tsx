@@ -1,16 +1,17 @@
 import type { Delta } from "@/data/types";
-import { deltaArrow, deltaClass } from "@/lib/format";
+import { deltaArrow, deltaClass, isMeaningfulDelta } from "@/lib/format";
 
 function periodCaption(period: string): string {
   const p = period.trim();
+  if (!p) return "";
   if (/^\d+\s*[dDwWmMyY]$/i.test(p) || /^\d+d$/i.test(p)) {
     return `from ${p} ago`;
   }
-  if (/ago|ytd|floor|level|vs/i.test(p)) return p;
+  if (/ago|ytd|vs/i.test(p)) return p;
   return p;
 }
 
-/** Quiet secondary voice — mono figure, no color theater. */
+/** Quiet secondary voice — tabular figure, no color theater. */
 export function DeltaPill({
   delta,
   compact = false,
@@ -20,21 +21,31 @@ export function DeltaPill({
   compact?: boolean;
   showPeriod?: boolean;
 }) {
+  if (!isMeaningfulDelta(delta)) {
+    return (
+      <span className={`tabular-nums text-slate-400 ${compact ? "text-[11px]" : "text-[12px]"}`}>
+        —
+      </span>
+    );
+  }
+
+  const period = periodCaption(delta.period);
+
   return (
     <span
-      className={`inline-flex flex-wrap items-baseline gap-x-1.5 font-mono ${deltaClass(
+      className={`inline-flex flex-wrap items-baseline gap-x-1.5 tabular-nums ${deltaClass(
         delta.direction
-      )} ${compact ? "text-[11px]" : "text-[12px]"} [font-variant-numeric:tabular-nums]`}
+      )} ${compact ? "text-[11px]" : "text-[12px]"}`}
     >
       <span aria-hidden className="opacity-50">
         {deltaArrow(delta.direction)}
       </span>
       <span className="font-medium">{delta.display}</span>
-      {!compact && showPeriod && (
-        <span className="font-sans text-[11px] font-normal text-slate-400">
-          {periodCaption(delta.period)}
+      {!compact && showPeriod && period ? (
+        <span className="text-[11px] font-normal text-slate-400">
+          {period}
         </span>
-      )}
+      ) : null}
     </span>
   );
 }
