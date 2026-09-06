@@ -17,14 +17,10 @@ export default async function HomePage({
 }) {
   const sp = await searchParams;
   const mode = parseMode(sp.mode);
-  const { sectors, asOf, live } = await getMonitorBundle();
-  const mature = sectors.filter((s) => s.mode === "Mature");
-  const emerging = sectors.filter((s) => s.mode === "Emerging");
+  const { asOf, live } = await getMonitorBundle();
 
   return (
     <HomeBrowse
-      mature={mature}
-      emerging={emerging}
       mode={mode}
       asOf={asOf}
       instruments={{

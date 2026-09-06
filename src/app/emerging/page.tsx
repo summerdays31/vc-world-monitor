@@ -16,7 +16,7 @@ const statusStyles = {
 
 export default function EmergingPage() {
   return (
-    <div className="space-y-10">
+    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 space-y-10">
       <header className="max-w-2xl space-y-2">
         <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">
           Early-signal kit

@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --accent: #334155;
+  --background: #f7f6f3;
+  --foreground: #0a0a0a;
+  --card: #f7f6f3;
+  --muted: #8a847a;
+  --border: #e5e2db;
+  --accent: #3d3a36;
   --up: #047857;
   --down: #b91c1c;
 }
@@ -35,11 +35,11 @@ body {
 }
 
 ::selection {
-  background: rgba(15, 23, 42, 0.12);
-  color: #0f172a;
+  background: rgba(10, 10, 10, 0.12);
+  color: #0a0a0a;
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: #cfc9bc transparent;
 }

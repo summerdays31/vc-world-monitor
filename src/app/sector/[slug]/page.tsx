@@ -54,7 +54,7 @@ export default async function SectorDetailPage({
     metrics.talentOrAdoption.value.isExample;
 
   return (
-    <div className="space-y-10">
+    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 space-y-10">
       <SectorChipStrip sectors={allSectors} activeSlug={sector.slug} />
 
       <header className="space-y-3 border-b border-slate-200/80 pb-8">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { AppRail } from "@/components/AppRail";
-import { getMonitorBundle } from "@/lib/adapters";
+import { Suspense } from "react";
+import { Masthead } from "@/components/Masthead";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,22 +18,18 @@ export const metadata: Metadata = {
     "Live and curated public signals across AI, infrastructure, and capital.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { asOf } = await getMonitorBundle();
-
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full bg-[#f8fafc] font-sans text-slate-900">
-        <div className="flex min-h-full">
-          <AppRail asOf={asOf} />
-          <main className="min-w-0 flex-1 px-5 py-5 sm:px-6 lg:px-8">
-            {children}
-          </main>
-        </div>
+      <body className="min-h-full bg-[#f7f6f3] font-sans text-[#0a0a0a]">
+        <Suspense fallback={null}>
+          <Masthead />
+        </Suspense>
+        <main className="min-w-0">{children}</main>
       </body>
     </html>
   );

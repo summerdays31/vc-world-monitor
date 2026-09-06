@@ -15,7 +15,7 @@ export default async function BriefPage() {
   const { meta, sections } = brief;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 space-y-6">
       <header className="max-w-2xl space-y-2 border-b border-slate-200 pb-5">
         <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">
           Editorial brief
