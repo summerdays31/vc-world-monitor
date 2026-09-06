@@ -1,8 +1,6 @@
 import Link from "next/link";
 import type { Sector, SectorMetrics } from "@/data/types";
-import { modeClass } from "@/lib/format";
 import { DeltaPill } from "./DeltaPill";
-import { ExampleBadge, ProvenanceBadge } from "./ProvenanceBadge";
 
 type MetricSlot = SectorMetrics["capitalPulse"];
 
@@ -29,12 +27,70 @@ function pickSecondary(metrics: SectorMetrics): MetricSlot {
   return rank(b) > rank(a) ? b : a;
 }
 
+function cleanLabel(label: string): string {
+  return label.replace(/\s*\(EXAMPLE\)\s*/gi, "").trim();
+}
+
 function allHomeMetricsExample(sector: Sector, secondary: MetricSlot): boolean {
   return (
     sector.metrics.northStar.value.isExample && secondary.value.isExample
   );
 }
 
+function MetricLane({
+  label,
+  display,
+  delta,
+  isExample,
+  primary,
+}: {
+  label: string;
+  display: string;
+  delta: MetricSlot["delta"];
+  isExample: boolean;
+  primary?: boolean;
+}) {
+  return (
+    <div
+      className={`grid grid-cols-[1fr_auto] items-baseline gap-x-3 gap-y-0.5 ${
+        primary ? "pb-3" : "pt-3"
+      }`}
+    >
+      <div
+        className={`min-w-0 truncate ${
+          primary
+            ? "text-[11px] font-medium text-slate-500"
+            : "text-[11px] text-slate-400"
+        }`}
+      >
+        {cleanLabel(label)}
+        {isExample ? (
+          <span className="ml-1.5 text-[10px] font-normal text-slate-400">
+            example
+          </span>
+        ) : null}
+      </div>
+      <div className="justify-self-end">
+        <DeltaPill delta={delta} compact showPeriod={false} />
+      </div>
+      <div
+        className={`col-span-2 tabular-nums tracking-tight text-slate-900 ${
+          primary
+            ? "text-[1.55rem] font-light leading-none"
+            : "text-[15px] font-medium leading-none text-slate-700"
+        }`}
+      >
+        {display}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Sector card — optical lanes for label / value / delta.
+ * No footer CTA, no colored dots, quiet EXAMPLE.
+ * Wholly-example sectors are visually demoted.
+ */
 export function SectorCard({ sector }: { sector: Sector }) {
   const { metrics } = sector;
   const ns = metrics.northStar.value;
@@ -42,96 +98,42 @@ export function SectorCard({ sector }: { sector: Sector }) {
   const whollyExample = allHomeMetricsExample(sector, secondary);
 
   return (
-    <article className="group flex flex-col rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition hover:border-slate-300">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-block h-2 w-2 shrink-0 rounded-full"
-              style={{ backgroundColor: sector.accent }}
-            />
-            <Link
-              href={`/sector/${sector.slug}`}
-              className="text-[15px] font-semibold tracking-tight text-slate-900 hover:text-blue-600"
-            >
-              {sector.name}
-            </Link>
-          </div>
-          <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-slate-500">
-            {sector.blurb}
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          <span
-            className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${modeClass(
-              sector.mode
-            )}`}
-          >
-            {sector.mode}
-          </span>
-          {whollyExample ? <ExampleBadge /> : null}
-        </div>
-      </div>
-
-      <div className="mb-3 space-y-1 border-b border-slate-100 pb-3">
-        <div className="text-[11px] font-medium text-slate-400">
-          {metrics.northStar.label}
-          {ns.isExample && !metrics.northStar.label.includes("(EXAMPLE)")
-            ? " · EXAMPLE"
-            : ""}
-        </div>
-        <div className="flex flex-wrap items-baseline gap-2">
-          <span className="text-[1.65rem] font-light tracking-tight tabular-nums text-slate-900">
-            {ns.display}
-          </span>
-          <DeltaPill delta={metrics.northStar.delta} />
-        </div>
-        <div className="flex flex-wrap items-center gap-2 pt-0.5">
-          {ns.isExample ? (
-            <ExampleBadge />
-          ) : (
-            <>
-              <ProvenanceBadge value={ns} />
-              <span className="text-[10px] text-slate-400">as of {ns.asOf}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <div className="text-[11px] font-medium text-slate-400">
-          {secondary.label}
-          {secondary.value.isExample &&
-          !secondary.label.includes("(EXAMPLE)")
-            ? " · EXAMPLE"
-            : ""}
-        </div>
-        <div className="mt-1 flex flex-wrap items-baseline gap-2">
-          <span className="text-lg font-medium tabular-nums text-slate-900">
-            {secondary.value.display}
-          </span>
-          <DeltaPill delta={secondary.delta} compact />
-        </div>
-        <div className="mt-1">
-          {secondary.value.isExample ? (
-            <ExampleBadge />
-          ) : (
-            <ProvenanceBadge value={secondary.value} />
-          )}
-        </div>
-      </div>
-
-      <div className="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
-        <span className="truncate text-xs text-slate-400">
-          {sector.catalyst.label}
+    <Link
+      href={`/sector/${sector.slug}`}
+      className={`group block rounded-xl bg-white p-5 ring-1 transition ${
+        whollyExample
+          ? "ring-slate-200/50 opacity-[0.82] hover:opacity-100 hover:ring-slate-300"
+          : "ring-slate-200/80 hover:ring-slate-300"
+      }`}
+    >
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <h3 className="truncate text-[15px] font-semibold tracking-tight text-slate-900 group-hover:text-blue-700">
+          {sector.name}
+        </h3>
+        <span className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+          {sector.mode}
         </span>
-        <Link
-          href={`/sector/${sector.slug}`}
-          className="shrink-0 text-[13px] font-medium text-blue-600 transition group-hover:text-blue-700"
-        >
-          Open →
-        </Link>
       </div>
-    </article>
+
+      <p className="mb-4 line-clamp-2 text-[12px] leading-snug text-slate-400">
+        {sector.blurb}
+      </p>
+
+      <div className="divide-y divide-slate-100">
+        <MetricLane
+          label={metrics.northStar.label}
+          display={ns.display}
+          delta={metrics.northStar.delta}
+          isExample={ns.isExample}
+          primary
+        />
+        <MetricLane
+          label={secondary.label}
+          display={secondary.value.display}
+          delta={secondary.delta}
+          isExample={secondary.value.isExample}
+        />
+      </div>
+    </Link>
   );
 }

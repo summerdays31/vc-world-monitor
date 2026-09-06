@@ -21,16 +21,16 @@ export function DeltaPill({
 }) {
   return (
     <span
-      className={`inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 ${deltaClass(
+      className={`inline-flex flex-wrap items-baseline gap-x-1 ${deltaClass(
         delta.direction
-      )} ${compact ? "text-xs" : "text-[13px]"}`}
+      )} ${compact ? "text-[11px]" : "text-[12px]"}`}
     >
-      <span aria-hidden className="text-[10px]">
+      <span aria-hidden className="text-[9px] opacity-80">
         {deltaArrow(delta.direction)}
       </span>
-      <span className="font-semibold tabular-nums">{delta.display}</span>
+      <span className="font-medium tabular-nums">{delta.display}</span>
       {!compact && showPeriod && (
-        <span className="text-[12px] font-normal text-slate-400">
+        <span className="text-[11px] font-normal text-slate-400">
           {periodCaption(delta.period)}
         </span>
       )}

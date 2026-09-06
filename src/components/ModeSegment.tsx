@@ -4,6 +4,7 @@ export type ModeFilter = "Mature" | "Emerging" | "All";
 
 const OPTIONS: ModeFilter[] = ["Mature", "Emerging", "All"];
 
+/** Compact product-grade segmented control (RWA.xyz density). */
 export function ModeSegment({
   value,
   onChange,
@@ -15,7 +16,7 @@ export function ModeSegment({
     <div
       role="tablist"
       aria-label="Sector mode filter"
-      className="inline-flex rounded-lg bg-slate-100 p-0.5"
+      className="inline-flex h-8 items-center rounded-md border border-slate-200 bg-white p-0.5"
     >
       {OPTIONS.map((opt) => {
         const active = value === opt;
@@ -26,9 +27,9 @@ export function ModeSegment({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(opt)}
-            className={`rounded-md px-3 py-1.5 text-[13px] font-medium transition ${
+            className={`h-7 rounded-[5px] px-2.5 text-[12px] font-medium transition ${
               active
-                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                ? "bg-slate-900 text-white"
                 : "text-slate-500 hover:text-slate-800"
             }`}
           >

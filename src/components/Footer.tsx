@@ -1,5 +1,3 @@
-import { ExampleBadge, ProvenanceBadge } from "./ProvenanceBadge";
-
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-slate-200 bg-white">
@@ -9,16 +7,8 @@ export function Footer() {
             Public dashboard · not investment advice
           </p>
           <p className="max-w-xl text-[13px] text-slate-500">
-            Typed metrics schema. Three key figures use{" "}
-            <ProvenanceBadge
-              value={{
-                isExample: false,
-                provenance: "live",
-                asOf: "",
-                sourceLabel: "public feeds",
-              }}
-            />{" "}
-            / curated reports; all others ship as <ExampleBadge />.
+            Three key figures use live or curated public feeds; all others are
+            marked <span className="text-slate-400">example</span>.
           </p>
         </div>
         <p className="text-[12px] text-slate-400">

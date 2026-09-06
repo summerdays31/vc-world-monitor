@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ExampleBadge } from "@/components/ExampleBadge";
 import { PulseRow } from "@/components/PulseRow";
 import { getMonitorBundle } from "@/lib/adapters";
 
@@ -17,30 +16,29 @@ export default async function BriefPage() {
   const { meta, sections } = brief;
 
   return (
-    <div className="space-y-8">
-      <header className="max-w-3xl space-y-3 border-b border-slate-200 pb-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-700">
+    <div className="space-y-10">
+      <header className="max-w-2xl space-y-2 border-b border-slate-200/80 pb-8">
+        <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">
           Editorial brief
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           {meta.title}
         </h1>
         <p className="text-[15px] text-slate-500">{meta.subtitle}</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-xs text-slate-400">As of {meta.asOf}</span>
-          <ExampleBadge />
-        </div>
-        <p className="rounded-lg border border-amber-200 bg-amber-50/70 px-3 py-2 text-[13px] text-amber-900">
+        <p className="text-[11px] text-slate-400">
+          as of {meta.asOf} · <span className="text-slate-400">example</span>
+        </p>
+        <p className="rounded-lg bg-slate-50 px-3 py-2 text-[13px] text-slate-600 ring-1 ring-slate-200/80">
           {meta.disclaimer}
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="space-y-5">
           {sections.map((section, i) => (
             <section
               key={section.id}
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+              className="rounded-xl bg-white p-5 ring-1 ring-slate-200/80"
             >
               <div className="mb-2 flex items-baseline gap-3">
                 <span className="text-xs tabular-nums text-slate-400">
@@ -70,7 +68,7 @@ export default async function BriefPage() {
                   href={`/sector/${section.relatedSlug}`}
                   className="mt-4 inline-flex text-[13px] font-medium text-blue-600 hover:text-blue-700"
                 >
-                  Open related sector →
+                  Related sector →
                 </Link>
               )}
             </section>
@@ -78,18 +76,18 @@ export default async function BriefPage() {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-            <h3 className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+          <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200/80">
+            <h3 className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
               Sourced?
             </h3>
             <p className="mt-2 text-[13px] text-slate-500">
               Source tags on sector cards are explicitly marked{" "}
-              <span className="text-amber-700">EXAMPLE</span> or placeholder —
+              <span className="text-slate-400">example</span> or placeholder —
               never fabricated journal citations.
             </p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-            <h3 className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+          <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200/80">
+            <h3 className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
               Cross-cut
             </h3>
             <p className="mt-2 text-[13px] text-slate-500">

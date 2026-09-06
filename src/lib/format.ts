@@ -14,14 +14,13 @@ export function deltaArrow(direction: Delta["direction"]): string {
 
 export function urgencyClass(urgency: "high" | "medium" | "low"): string {
   if (urgency === "high")
-    return "border-amber-200 bg-amber-50 text-amber-800";
+    return "border-amber-200/70 bg-amber-50/50 text-amber-800";
   if (urgency === "medium")
-    return "border-sky-200 bg-sky-50 text-sky-800";
+    return "border-sky-200/70 bg-sky-50/50 text-sky-800";
   return "border-slate-200 bg-slate-50 text-slate-600";
 }
 
 export function modeClass(mode: "Mature" | "Emerging"): string {
-  if (mode === "Emerging")
-    return "border-violet-200 bg-violet-50 text-violet-700";
-  return "border-slate-200 bg-slate-50 text-slate-600";
+  if (mode === "Emerging") return "text-slate-500";
+  return "text-slate-500";
 }

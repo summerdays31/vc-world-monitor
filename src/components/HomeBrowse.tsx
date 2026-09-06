@@ -9,11 +9,10 @@ import { SectorLeagueTable } from "./SectorLeagueTable";
 export function HomeBrowse({
   mature,
   emerging,
-  asOf,
 }: {
   mature: Sector[];
   emerging: Sector[];
-  asOf: string;
+  asOf?: string;
 }) {
   const [mode, setMode] = useState<ModeFilter>("All");
 
@@ -27,26 +26,19 @@ export function HomeBrowse({
   }, [mode, mature, emerging]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-            Asset classes
-          </h2>
-          <p className="text-[13px] text-slate-500">
-            Mature vs emerging segregation · two metrics per sector on home
-          </p>
-        </div>
+        <h2 className="text-base font-semibold tracking-tight text-slate-900">
+          Sectors
+        </h2>
         <ModeSegment value={mode} onChange={setMode} />
       </div>
 
       {showMature && (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-slate-900">Mature</h3>
-            <span className="text-xs text-slate-400">
-              {mature.length} sectors · as of {asOf}
-            </span>
+        <section className="space-y-4">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-[13px] font-semibold text-slate-900">Mature</h3>
+            <span className="text-[11px] text-slate-400">{mature.length}</span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {mature.map((s) => (
@@ -57,12 +49,12 @@ export function HomeBrowse({
       )}
 
       {showEmerging && (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-slate-900">Emerging</h3>
-            <span className="text-xs text-slate-400">
-              {emerging.length} sectors · as of {asOf}
-            </span>
+        <section className="space-y-4">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-[13px] font-semibold text-slate-900">
+              Emerging
+            </h3>
+            <span className="text-[11px] text-slate-400">{emerging.length}</span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {emerging.map((s) => (
@@ -72,7 +64,7 @@ export function HomeBrowse({
         </section>
       )}
 
-      <SectorLeagueTable sectors={leagueSectors} asOf={asOf} />
+      <SectorLeagueTable sectors={leagueSectors} />
     </div>
   );
 }

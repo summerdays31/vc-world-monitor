@@ -1,57 +1,59 @@
 import type { MetricValue, ProvenanceKind } from "@/data/types";
 
-const styles: Record<ProvenanceKind, string> = {
-  example: "text-amber-700/90",
-  live: "text-emerald-700/90",
-  curated: "text-sky-700/90",
-};
-
-const labels: Record<ProvenanceKind, string> = {
-  example: "EXAMPLE",
-  live: "Live",
-  curated: "Curated",
-};
-
-export function ProvenanceBadge({
+/**
+ * Quiet provenance mark — never a shouty chip.
+ * EXAMPLE is tiny muted text; live/curated only when useful.
+ */
+export function ProvenanceMark({
   value,
   className = "",
+  showSource = false,
 }: {
   value: Pick<
     MetricValue,
     "provenance" | "stale" | "sourceLabel" | "sourceUrl" | "asOf" | "isExample"
   >;
   className?: string;
+  /** Include source label (detail pages only). */
+  showSource?: boolean;
 }) {
   const kind: ProvenanceKind = value.isExample
     ? "example"
     : value.provenance ?? "example";
+
   const title = [
     value.sourceLabel,
     value.asOf ? `as of ${value.asOf}` : null,
-    value.stale ? "STALE fallback" : null,
+    value.stale ? "stale fallback" : null,
     value.sourceUrl,
   ]
     .filter(Boolean)
     .join(" · ");
 
+  let text: string;
+  if (kind === "example") {
+    text = "example";
+  } else if (kind === "live") {
+    text = value.stale ? "live · stale" : "live";
+  } else {
+    text = value.stale ? "curated · stale" : "curated";
+  }
+
+  const tone =
+    kind === "example"
+      ? "text-slate-400"
+      : kind === "live"
+        ? "text-slate-500"
+        : "text-slate-500";
+
   const inner = (
     <span
-      className={`inline-flex items-center gap-1 text-[10px] font-medium tracking-wide ${styles[kind]} ${className}`}
+      className={`text-[10px] font-normal tracking-wide ${tone} ${className}`}
       title={title || undefined}
     >
-      <span
-        className={`h-1 w-1 rounded-full ${
-          kind === "example"
-            ? "bg-amber-500"
-            : kind === "live"
-              ? "bg-emerald-500"
-              : "bg-sky-500"
-        }`}
-      />
-      {labels[kind]}
-      {value.stale ? " · stale" : ""}
-      {value.sourceLabel && kind !== "example" ? (
-        <span className="font-normal text-slate-400">· {value.sourceLabel}</span>
+      {text}
+      {showSource && value.sourceLabel && kind !== "example" ? (
+        <span className="text-slate-400"> · {value.sourceLabel}</span>
       ) : null}
     </span>
   );
@@ -62,7 +64,7 @@ export function ProvenanceBadge({
         href={value.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex hover:opacity-80"
+        className="inline-flex hover:text-blue-600"
       >
         {inner}
       </a>
@@ -71,15 +73,27 @@ export function ProvenanceBadge({
   return inner;
 }
 
+/** @deprecated Prefer ProvenanceMark — kept for call sites. */
+export function ProvenanceBadge({
+  value,
+  className = "",
+}: {
+  value: Pick<
+    MetricValue,
+    "provenance" | "stale" | "sourceLabel" | "sourceUrl" | "asOf" | "isExample"
+  >;
+  className?: string;
+}) {
+  return <ProvenanceMark value={value} className={className} />;
+}
+
+/** Quiet EXAMPLE label — never an orange badge. */
 export function ExampleBadge({ className = "" }: { className?: string }) {
   return (
-    <ProvenanceBadge
-      className={className}
-      value={{
-        isExample: true,
-        provenance: "example",
-        asOf: "",
-      }}
-    />
+    <span
+      className={`text-[10px] font-normal tracking-wide text-slate-400 ${className}`}
+    >
+      example
+    </span>
   );
 }

@@ -1,6 +1,5 @@
 import { HomeBrowse } from "@/components/HomeBrowse";
 import { PulseRow } from "@/components/PulseRow";
-import { ProvenanceBadge } from "@/components/ProvenanceBadge";
 import { getMonitorBundle } from "@/lib/adapters";
 
 /** Page HTML can regenerate hourly on traffic; live fetches are daily + cron-warmed. */
@@ -11,33 +10,30 @@ export default async function HomePage() {
   const mature = sectors.filter((s) => s.mode === "Mature");
   const emerging = sectors.filter((s) => s.mode === "Emerging");
 
+  const liveCount = live
+    ? [live.gpu, live.interconnect, live.vc].filter(
+        (m) => m.value.provenance === "live" && !m.value.stale
+      ).length
+    : 0;
+
   return (
-    <div className="space-y-8">
-      <section className="max-w-3xl space-y-3">
+    <div className="space-y-10">
+      <section className="max-w-2xl space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Global Market Overview
         </h1>
         <p className="text-[15px] leading-relaxed text-slate-500">
-          Welcome to VC World Monitor. Track sector change, value accrual, and
-          early signals across{" "}
+          Sector change, value accrual, and early signals across{" "}
           <span className="font-medium text-slate-700">
             {sectors.length} themes
           </span>
-          , split Mature / Emerging. Cards show at most two metrics on home;
-          three key figures pull public live/curated feeds — others remain
-          EXAMPLE.
+          . Mature and emerging, two metrics per sector on home.
         </p>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-          <span>as of {asOf}</span>
-          {live && (
-            <>
-              <span className="text-slate-300">·</span>
-              <ProvenanceBadge value={live.gpu.value} />
-              <ProvenanceBadge value={live.interconnect.value} />
-              <ProvenanceBadge value={live.vc.value} />
-            </>
-          )}
-        </div>
+        <p className="text-[11px] text-slate-400">
+          as of {asOf}
+          {liveCount > 0 ? ` · ${liveCount} live feeds` : null}
+          {" · "}refreshed daily
+        </p>
       </section>
 
       <PulseRow items={pulse} asOf={asOf} />

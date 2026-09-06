@@ -1,5 +1,3 @@
-import { ExampleBadge } from "./ExampleBadge";
-
 export function StructuralGauge({
   label,
   score,
@@ -18,28 +16,28 @@ export function StructuralGauge({
         : "bg-emerald-500";
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-      <div className="mb-3 flex items-center justify-between gap-2">
+    <div className="rounded-xl bg-white p-5 ring-1 ring-slate-200/80">
+      <div className="mb-4 flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+          <h3 className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
             Structural gauge
           </h3>
-          <p className="text-sm font-medium text-slate-900">{label}</p>
+          <p className="mt-0.5 text-sm font-medium text-slate-900">{label}</p>
         </div>
         <div className="text-right">
           <div className="text-2xl font-light tabular-nums text-slate-900">
             {clamped}
           </div>
-          <ExampleBadge />
+          <span className="text-[10px] text-slate-400">example</span>
         </div>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
         <div
           className={`h-full rounded-full ${tone} transition-all`}
           style={{ width: `${clamped}%` }}
         />
       </div>
-      <p className="mt-2 text-[13px] text-slate-500">{caption}</p>
+      <p className="mt-3 text-[13px] leading-snug text-slate-500">{caption}</p>
     </div>
   );
 }

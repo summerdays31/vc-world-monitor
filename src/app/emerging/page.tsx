@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ExampleBadge } from "@/components/ExampleBadge";
 import { emergingSignals, getSector } from "@/data/sectors";
 
 export const metadata: Metadata = {
@@ -10,16 +9,16 @@ export const metadata: Metadata = {
 };
 
 const statusStyles = {
-  hot: "border-rose-200 bg-rose-50 text-rose-800",
-  warming: "border-amber-200 bg-amber-50 text-amber-800",
+  hot: "border-rose-200/80 bg-rose-50/60 text-rose-800",
+  warming: "border-amber-200/80 bg-amber-50/60 text-amber-800",
   watch: "border-slate-200 bg-slate-50 text-slate-600",
 } as const;
 
 export default function EmergingPage() {
   return (
-    <div className="space-y-8">
-      <header className="max-w-3xl space-y-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-600">
+    <div className="space-y-10">
+      <header className="max-w-2xl space-y-2">
+        <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">
           Early-signal kit
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
@@ -32,26 +31,23 @@ export default function EmergingPage() {
             search → creators → capital into enablers → unit economics → export →
             regulation → public comps
           </span>
-          . Cards below are worked examples with{" "}
-          <ExampleBadge className="align-middle" /> only.
+          . Cards below are worked{" "}
+          <span className="text-slate-400">example</span> only.
         </p>
       </header>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-        <h2 className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+      <section className="rounded-xl bg-white p-5 ring-1 ring-slate-200/80">
+        <h2 className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
           How to use the kit
         </h2>
-        <ol className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["01 Search", "Query / filing / waitlist spikes before revenue"],
             ["02 Supply", "Creators, labs, or OEMs forming pipelines"],
             ["03 Enablers", "Capital concentrates in picks-and-shovels"],
             ["04 Proof", "Unit economics + export + policy + comps"],
           ].map(([t, b]) => (
-            <li
-              key={t}
-              className="rounded-lg border border-slate-200 bg-slate-50/60 p-3"
-            >
+            <li key={t} className="rounded-lg bg-slate-50/70 p-3">
               <div className="text-xs font-medium text-blue-600">{t}</div>
               <p className="mt-1 text-[13px] text-slate-500">{b}</p>
             </li>
@@ -63,18 +59,18 @@ export default function EmergingPage() {
         {emergingSignals.map((card) => (
           <article
             key={card.id}
-            className="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+            className="rounded-xl bg-white p-5 ring-1 ring-slate-200/80 opacity-[0.92]"
           >
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-              <div>
+            <div className="mb-4">
+              <div className="flex items-baseline gap-2">
                 <h2 className="text-xl font-semibold text-slate-900">
                   {card.title}
                 </h2>
-                <p className="mt-1 max-w-3xl text-[13px] text-slate-500">
-                  {card.thesis}
-                </p>
+                <span className="text-[10px] text-slate-400">example</span>
               </div>
-              <ExampleBadge />
+              <p className="mt-1 max-w-3xl text-[13px] text-slate-500">
+                {card.thesis}
+              </p>
             </div>
 
             <div className="mb-4 flex flex-wrap gap-2">
@@ -99,8 +95,8 @@ export default function EmergingPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                Related sectors
+              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                Related
               </span>
               {card.relatedSectors.map((slug) => {
                 const s = getSector(slug);
@@ -108,7 +104,7 @@ export default function EmergingPage() {
                   <Link
                     key={slug}
                     href={`/sector/${slug}`}
-                    className="rounded-full border border-slate-200 px-2.5 py-0.5 text-[12px] text-blue-600 hover:border-blue-300 hover:bg-blue-50"
+                    className="rounded-md px-2 py-0.5 text-[12px] text-blue-600 ring-1 ring-slate-200/80 hover:bg-blue-50"
                   >
                     {s?.shortName ?? slug}
                   </Link>

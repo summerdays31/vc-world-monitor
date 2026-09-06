@@ -1,6 +1,9 @@
 import type { Delta, MetricValue } from "@/data/types";
 import { DeltaPill } from "./DeltaPill";
-import { ExampleBadge, ProvenanceBadge } from "./ProvenanceBadge";
+
+function cleanLabel(label: string): string {
+  return label.replace(/\s*\(EXAMPLE\)\s*/gi, "").trim();
+}
 
 export function MetricBlock({
   label,
@@ -18,45 +21,32 @@ export function MetricBlock({
     <div
       className={
         size === "lg"
-          ? `rounded-lg border p-4 ${
-              example
-                ? "border-amber-200/80 bg-amber-50/50"
-                : "border-slate-200 bg-slate-50/70"
-            }`
-          : `rounded-lg border p-3 ${
-              example
-                ? "border-amber-200/70 bg-amber-50/40"
-                : "border-slate-200 bg-white"
-            }`
+          ? "rounded-lg bg-slate-50/80 px-4 py-3.5"
+          : "rounded-lg border border-slate-100 bg-white p-3"
       }
     >
-      <div
-        className={`text-slate-500 ${
-          size === "lg"
-            ? "text-[11px] font-medium"
-            : "line-clamp-2 text-[11px] leading-tight"
-        }`}
-      >
-        {label}
-        {example && !label.includes("(EXAMPLE)") ? " · EXAMPLE" : ""}
+      <div className="text-[11px] leading-tight text-slate-500">
+        {cleanLabel(label)}
+        {example ? (
+          <span className="ml-1.5 text-[10px] text-slate-400">example</span>
+        ) : null}
       </div>
       <div
-        className={`mt-1.5 font-medium tabular-nums tracking-tight text-slate-900 ${
-          size === "lg" ? "text-xl font-light" : "text-base"
+        className={`mt-1.5 tabular-nums tracking-tight text-slate-900 ${
+          size === "lg" ? "text-xl font-light" : "text-base font-medium"
         }`}
       >
         {value.display}
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+      <div className="mt-1.5">
         <DeltaPill delta={delta} compact />
-        {example ? <ExampleBadge /> : <ProvenanceBadge value={value} />}
       </div>
-      {!example && (
+      {!example && value.sourceLabel ? (
         <div className="mt-1.5 text-[10px] text-slate-400">
-          as of {value.asOf}
-          {value.stale ? " · stale fallback" : ""}
+          {value.sourceLabel}
+          {value.stale ? " · stale" : ""}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
