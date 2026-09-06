@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Footer } from "@/components/Footer";
-import { Nav } from "@/components/Nav";
+import { Geist } from "next/font/google";
+import { AppRail } from "@/components/AppRail";
+import { getMonitorBundle } from "@/lib/adapters";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -23,22 +18,22 @@ export const metadata: Metadata = {
     "Live and curated public signals across AI, infrastructure, and capital.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { asOf } = await getMonitorBundle();
+
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full bg-[#f8fafc] font-sans text-slate-900">
-        <Nav />
-        <main className="mx-auto w-full max-w-[680px] px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
-          {children}
-        </main>
-        <Footer />
+        <div className="flex min-h-full">
+          <AppRail asOf={asOf} />
+          <main className="min-w-0 flex-1 px-5 py-5 sm:px-6 lg:px-8">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

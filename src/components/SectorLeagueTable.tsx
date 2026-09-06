@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Sector } from "@/data/types";
-import { cleanLabel } from "@/lib/homeMetrics";
+import { cleanLabel, pickSecondary } from "@/lib/homeMetrics";
 import { deltaClass, isMeaningfulDelta } from "@/lib/format";
 
 /** Fixed importance order for wired home rows; then alpha. */
@@ -12,14 +12,11 @@ const IMPORTANCE: Record<string, number> = {
 };
 
 /**
- * Dense typeset ledger — Sector | Metric | Value (Δ folded into Value).
- * Optical grid, tabular nums, hairline rules. No hero, no Δ column.
+ * Full-width ledger — Sector | Metrics (two-line) | Values (lattice).
+ * Stronger sector column; secondary metric densifies each row.
+ * Inline Δ only when meaningful.
  */
-export function SectorLeagueTable({
-  sectors,
-}: {
-  sectors: Sector[];
-}) {
+export function SectorLeagueTable({ sectors }: { sectors: Sector[] }) {
   const ranked = [...sectors].sort((a, b) => {
     const ai = IMPORTANCE[a.slug] ?? 50;
     const bi = IMPORTANCE[b.slug] ?? 50;
@@ -30,53 +27,87 @@ export function SectorLeagueTable({
   if (ranked.length === 0) return null;
 
   return (
-    <section>
+    <section aria-label="Sector ledger">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-slate-300 text-[11px] tracking-wide text-slate-500">
-              <th className="pb-1.5 pr-3 font-semibold">Sector</th>
-              <th className="pb-1.5 pr-3 font-semibold">Metric</th>
-              <th className="pb-1.5 text-right font-semibold">Value</th>
+              <th className="pb-1.5 pr-4 font-semibold">Sector</th>
+              <th className="pb-1.5 pr-4 font-semibold">Metric</th>
+              <th className="w-[9.5rem] pb-1.5 text-right font-semibold sm:w-[11rem]">
+                Value
+              </th>
             </tr>
           </thead>
           <tbody>
             {ranked.map((s) => {
               const ns = s.metrics.northStar;
-              const label = cleanLabel(ns.label);
-              const showDelta = isMeaningfulDelta(ns.delta);
+              const sec = pickSecondary(s.metrics);
+              const primaryLabel = cleanLabel(ns.label);
+              const secondaryLabel = cleanLabel(sec.label);
+              const showPrimaryDelta = isMeaningfulDelta(ns.delta);
+              const showSecondaryDelta =
+                !sec.value.isExample && isMeaningfulDelta(sec.delta);
+
               return (
                 <tr
                   key={s.slug}
                   className="border-b border-slate-200 last:border-b-0"
                 >
-                  <td className="whitespace-nowrap py-1.5 pr-3 align-baseline">
+                  <td className="whitespace-nowrap py-2.5 pr-4 align-top">
                     <Link
                       href={`/sector/${s.slug}`}
                       className="text-[14px] font-semibold text-slate-900 hover:text-slate-700"
                     >
                       {s.name}
                     </Link>
+                    <p className="mt-0.5 text-[11px] text-slate-400">
+                      {s.mode}
+                    </p>
                   </td>
-                  <td
-                    className="max-w-[14rem] truncate py-1.5 pr-3 align-baseline text-[12px] text-slate-500 sm:max-w-[18rem]"
-                    title={label}
-                  >
-                    {label}
+                  <td className="max-w-[16rem] py-2.5 pr-4 align-top sm:max-w-[22rem]">
+                    <p
+                      className="truncate text-[12px] text-slate-600"
+                      title={primaryLabel}
+                    >
+                      {primaryLabel}
+                    </p>
+                    <p
+                      className="mt-0.5 truncate text-[11px] text-slate-400"
+                      title={secondaryLabel}
+                    >
+                      {secondaryLabel}
+                    </p>
                   </td>
-                  <td className="whitespace-nowrap py-1.5 text-right align-baseline">
-                    <span className="text-[14px] font-semibold tabular-nums tracking-tight text-slate-900">
-                      {ns.value.display}
-                    </span>
-                    {showDelta ? (
-                      <span
-                        className={`ml-1.5 text-[11px] tabular-nums ${deltaClass(
-                          ns.delta.direction
-                        )}`}
-                      >
-                        {ns.delta.display}
+                  <td className="w-[9.5rem] whitespace-nowrap py-2.5 text-right align-top sm:w-[11rem]">
+                    <div className="flex items-baseline justify-end gap-1.5">
+                      <span className="text-[14px] font-semibold tabular-nums tracking-tight text-slate-900">
+                        {ns.value.display}
                       </span>
-                    ) : null}
+                      {showPrimaryDelta ? (
+                        <span
+                          className={`text-[11px] tabular-nums ${deltaClass(
+                            ns.delta.direction
+                          )}`}
+                        >
+                          {ns.delta.display}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-0.5 flex items-baseline justify-end gap-1.5">
+                      <span className="text-[12px] tabular-nums tracking-tight text-slate-500">
+                        {sec.value.isExample ? "—" : sec.value.display}
+                      </span>
+                      {showSecondaryDelta ? (
+                        <span
+                          className={`text-[10px] tabular-nums ${deltaClass(
+                            sec.delta.direction
+                          )}`}
+                        >
+                          {sec.delta.display}
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               );

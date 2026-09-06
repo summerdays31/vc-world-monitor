@@ -3,6 +3,7 @@
  * Keep adapters thin: map external payloads → Sector / MetricValue schema.
  */
 
+import { cache } from "react";
 import {
   sectors as seedSectors,
   emergingSignals,
@@ -29,10 +30,10 @@ export type MonitorBundle = {
   pulse: PulseItem[];
   emerging: typeof emergingSignals;
   brief: { meta: typeof briefMeta; sections: typeof briefSections };
-  live?: LiveBundle;
+  live: LiveBundle;
 };
 
-export async function getMonitorBundle(): Promise<MonitorBundle> {
+export const getMonitorBundle = cache(async (): Promise<MonitorBundle> => {
   const live = await fetchLiveBundle();
   const sectors = applyLiveOverlays(
     seedSectors.map((s) => structuredClone(s)),
@@ -51,7 +52,7 @@ export async function getMonitorBundle(): Promise<MonitorBundle> {
     brief: { meta: briefMeta, sections: briefSections },
     live,
   };
-}
+});
 
 export async function listSectors(): Promise<Sector[]> {
   return (await getMonitorBundle()).sectors;
