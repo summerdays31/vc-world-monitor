@@ -15,24 +15,34 @@ export default async function HomePage() {
         (m) => m.value.provenance === "live" && !m.value.stale
       ).length
     : 0;
+  const curatedCount = live
+    ? [live.gpu, live.interconnect, live.vc].filter(
+        (m) =>
+          m.value.provenance === "curated" ||
+          (m.value.provenance === "live" && m.value.stale)
+      ).length
+    : 0;
 
   return (
-    <div className="space-y-10">
-      <section className="max-w-2xl space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          Global Market Overview
-        </h1>
-        <p className="text-[15px] leading-relaxed text-slate-500">
-          Sector change, value accrual, and early signals across{" "}
-          <span className="font-medium text-slate-700">
-            {sectors.length} themes
-          </span>
-          . Mature and emerging, two metrics per sector on home.
-        </p>
-        <p className="text-[11px] text-slate-400">
+    <div className="space-y-6">
+      <section className="flex flex-wrap items-end justify-between gap-3 pb-1">
+        <div className="max-w-xl space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-[1.75rem]">
+            Global Market Overview
+          </h1>
+          <p className="text-[13px] leading-relaxed text-slate-500">
+            What matters today across{" "}
+            <span className="font-medium text-slate-700">
+              {sectors.length} themes
+            </span>
+            — live capacity, grid queue, and capital first.
+          </p>
+        </div>
+        <p className="font-mono text-[11px] text-slate-400 [font-variant-numeric:tabular-nums]">
           as of {asOf}
-          {liveCount > 0 ? ` · ${liveCount} live feeds` : null}
-          {" · "}refreshed daily
+          {liveCount > 0 ? ` · ${liveCount} live` : null}
+          {curatedCount > 0 ? ` · ${curatedCount} curated` : null}
+          {" · "}daily
         </p>
       </section>
 

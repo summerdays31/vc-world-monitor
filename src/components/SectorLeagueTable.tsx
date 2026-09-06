@@ -1,115 +1,100 @@
 import Link from "next/link";
-import type { Sector, SectorMetrics } from "@/data/types";
-import { deltaArrow, deltaClass } from "@/lib/format";
+import type { Sector } from "@/data/types";
+import { cleanLabel, pickSecondary } from "@/lib/homeMetrics";
 
-type MetricSlot = SectorMetrics["capitalPulse"];
-
-function pickSecondary(metrics: SectorMetrics): MetricSlot {
-  const candidates: MetricSlot[] = [
-    metrics.capitalPulse,
-    metrics.infraOrAdoption,
-  ];
-  const wired = candidates.filter((m) => !m.value.isExample);
-  if (wired.length === 1) return wired[0];
-  if (wired.length === 2) {
-    const live = wired.find((m) => m.value.provenance === "live");
-    if (live) return live;
-    return metrics.capitalPulse;
-  }
-  return metrics.capitalPulse;
-}
-
-function cleanLabel(label: string): string {
-  return label.replace(/\s*\(EXAMPLE\)\s*/gi, "").trim();
-}
-
+/**
+ * Mature scannable map — dense league rows, mono figures, no card chrome.
+ */
 export function SectorLeagueTable({
   sectors,
+  muted = false,
+  title = "Mature map",
+  caption,
 }: {
   sectors: Sector[];
   asOf?: string;
+  muted?: boolean;
+  title?: string;
+  caption?: string;
 }) {
   const ranked = [...sectors].sort((a, b) => {
+    const aw = a.metrics.northStar.value.isExample ? 0 : 1;
+    const bw = b.metrics.northStar.value.isExample ? 0 : 1;
+    if (bw !== aw) return bw - aw;
     const an = a.metrics.northStar.value.numeric ?? -Infinity;
     const bn = b.metrics.northStar.value.numeric ?? -Infinity;
     return bn - an;
   });
 
+  if (ranked.length === 0) return null;
+
   return (
-    <section className="overflow-hidden rounded-xl bg-white ring-1 ring-slate-200/80">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <h2 className="text-base font-semibold tracking-tight text-slate-900">
-          League table
-        </h2>
-        <p className="mt-0.5 text-[12px] text-slate-400">
-          Ranked by north-star value · two metrics per sector
-        </p>
+    <section className={muted ? "opacity-40" : undefined}>
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <div>
+          <h2 className="text-[13px] font-semibold tracking-tight text-slate-800">
+            {title}
+          </h2>
+          {caption ? (
+            <p className="mt-0.5 text-[11px] text-slate-400">{caption}</p>
+          ) : null}
+        </div>
+        <span className="font-mono text-[11px] text-slate-400 [font-variant-numeric:tabular-nums]">
+          {ranked.length}
+        </span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-left text-[13px]">
+      <div className="overflow-x-auto border-y border-slate-200/80">
+        <table className="w-full min-w-[640px] border-collapse text-left">
           <thead>
-            <tr className="border-b border-slate-100 text-[10px] font-medium uppercase tracking-wider text-slate-400">
-              <th className="px-5 py-2.5 font-medium">#</th>
-              <th className="px-3 py-2.5 font-medium">Sector</th>
-              <th className="px-3 py-2.5 font-medium">Mode</th>
-              <th className="px-3 py-2.5 font-medium">North star</th>
-              <th className="px-3 py-2.5 font-medium">Value</th>
-              <th className="px-3 py-2.5 font-medium">Δ</th>
-              <th className="px-5 py-2.5 font-medium">Secondary</th>
+            <tr className="border-b border-slate-100 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-400">
+              <th className="w-10 py-2.5 pr-2 font-medium">#</th>
+              <th className="py-2.5 pr-3 font-medium">Sector</th>
+              <th className="py-2.5 pr-3 font-medium">North star</th>
+              <th className="py-2.5 pr-3 text-right font-medium">Value</th>
+              <th className="py-2.5 pr-3 text-right font-medium">Δ</th>
+              <th className="py-2.5 text-right font-medium">Secondary</th>
             </tr>
           </thead>
           <tbody>
             {ranked.map((s, i) => {
               const ns = s.metrics.northStar;
               const sec = pickSecondary(s.metrics);
-              const d = ns.delta;
-              const example = ns.value.isExample;
+              const wired = !ns.value.isExample;
               return (
                 <tr
                   key={s.slug}
                   className={`border-b border-slate-50 last:border-0 ${
-                    example ? "opacity-70" : ""
-                  } ${i % 2 === 1 ? "bg-slate-50/40" : "bg-white"}`}
+                    wired ? "" : "text-slate-400"
+                  }`}
                 >
-                  <td className="px-5 py-3 tabular-nums text-slate-400">
-                    {i + 1}
+                  <td className="py-3 pr-2 font-mono text-[12px] text-slate-300 [font-variant-numeric:tabular-nums]">
+                    {String(i + 1).padStart(2, "0")}
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="py-3 pr-3">
                     <Link
                       href={`/sector/${s.slug}`}
-                      className="font-medium text-slate-900 hover:text-blue-700"
+                      className={`text-[14px] font-medium hover:underline ${
+                        wired ? "text-slate-900" : "text-slate-500"
+                      }`}
                     >
                       {s.name}
                     </Link>
                   </td>
-                  <td className="px-3 py-3 text-[11px] uppercase tracking-wide text-slate-400">
-                    {s.mode}
-                  </td>
-                  <td className="max-w-[11rem] truncate px-3 py-3 text-slate-500">
+                  <td className="max-w-[14rem] truncate py-3 pr-3 text-[12px] text-slate-500">
                     {cleanLabel(ns.label)}
-                    {example ? (
-                      <span className="ml-1.5 text-[10px] text-slate-400">
-                        example
-                      </span>
-                    ) : null}
                   </td>
-                  <td className="px-3 py-3 text-[15px] font-medium tabular-nums text-slate-900">
+                  <td className="py-3 pr-3 text-right font-mono text-[15px] font-medium tracking-tight text-slate-900 [font-variant-numeric:tabular-nums]">
                     {ns.value.display}
                   </td>
-                  <td
-                    className={`px-3 py-3 text-[12px] tabular-nums ${deltaClass(d.direction)}`}
-                  >
-                    <span className="text-[9px] opacity-80">
-                      {deltaArrow(d.direction)}
-                    </span>{" "}
-                    {d.display}
+                  <td className="py-3 pr-3 text-right font-mono text-[12px] text-slate-500 [font-variant-numeric:tabular-nums]">
+                    {ns.delta.display}
                   </td>
-                  <td className="px-5 py-3">
-                    <span className="tabular-nums font-medium text-slate-800">
+                  <td className="py-3 text-right">
+                    <span className="font-mono text-[13px] font-medium text-slate-800 [font-variant-numeric:tabular-nums]">
                       {sec.value.display}
                     </span>
-                    <span className="ml-1.5 text-[11px] text-slate-400">
+                    <span className="ml-2 text-[11px] text-slate-400">
                       {cleanLabel(sec.label)}
                     </span>
                   </td>

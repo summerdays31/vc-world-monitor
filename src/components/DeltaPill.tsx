@@ -10,6 +10,7 @@ function periodCaption(period: string): string {
   return p;
 }
 
+/** Quiet secondary voice — mono figure, no color theater. */
 export function DeltaPill({
   delta,
   compact = false,
@@ -21,16 +22,16 @@ export function DeltaPill({
 }) {
   return (
     <span
-      className={`inline-flex flex-wrap items-baseline gap-x-1 ${deltaClass(
+      className={`inline-flex flex-wrap items-baseline gap-x-1.5 font-mono ${deltaClass(
         delta.direction
-      )} ${compact ? "text-[11px]" : "text-[12px]"}`}
+      )} ${compact ? "text-[11px]" : "text-[12px]"} [font-variant-numeric:tabular-nums]`}
     >
-      <span aria-hidden className="text-[9px] opacity-80">
+      <span aria-hidden className="opacity-50">
         {deltaArrow(delta.direction)}
       </span>
-      <span className="font-medium tabular-nums">{delta.display}</span>
+      <span className="font-medium">{delta.display}</span>
       {!compact && showPeriod && (
-        <span className="text-[11px] font-normal text-slate-400">
+        <span className="font-sans text-[11px] font-normal text-slate-400">
           {periodCaption(delta.period)}
         </span>
       )}
