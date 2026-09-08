@@ -13,8 +13,8 @@ type Cell = {
 };
 
 /**
- * Four equal instrument panels — north star figures.
- * Provenance lives in-cell; optional muted secondary under debt only.
+ * Compact live / curated pulse strip — four instruments at top of home.
+ * Not the whole page; sector board lives below.
  */
 export function InstrumentBand({
   gpu,
@@ -96,7 +96,7 @@ export function InstrumentBand({
           <Link
             key={cell.key}
             href={cell.href}
-            className={`group flex min-h-[11.5rem] flex-col justify-between gap-6 px-5 py-6 transition hover:bg-[#f0eee8]/70 sm:min-h-[13rem] sm:px-5 sm:py-7 ${edge}`}
+            className={`group flex min-h-[8.5rem] flex-col justify-between gap-4 px-4 py-4 transition hover:bg-[#f0eee8]/70 sm:min-h-[9.5rem] sm:px-5 sm:py-5 ${edge}`}
           >
             <div className="space-y-1.5">
               <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#8a847a]">
@@ -109,7 +109,7 @@ export function InstrumentBand({
 
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                <span className="text-[1.85rem] font-semibold leading-none tracking-tight text-[#0a0a0a] tabular-nums xl:text-[2.05rem]">
+                <span className="text-[1.45rem] font-semibold leading-none tracking-tight text-[#0a0a0a] tabular-nums sm:text-[1.65rem]">
                   {value.display}
                 </span>
                 {showDelta ? (
