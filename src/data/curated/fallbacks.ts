@@ -137,3 +137,57 @@ export const deficitFallback: LiveMetricPayload = {
   note:
     "FY 2026: made $5.6T, spent $7.4T, deficit $1.9T (5.9% of GDP). Spend mix: $4.4T mandatory (60%), $1.9T discretionary (26%), $1T net interest (15%). Same curated post as US debt $40T.",
 };
+
+/**
+ * US data-center debt issuance ~$182B in 2025 — roughly doubled YoY.
+ * Industry estimate via Morgan Stanley as summarized by Steffen (Aug 14, 2026)
+ * citing contemporaneous FT/Bloomberg reporting. Not a live API; do not invent
+ * a precise prior-year figure — label ~2× YoY only.
+ */
+export const dcDebtIssuanceFallback: LiveMetricPayload = {
+  value: {
+    display: "$182B",
+    numeric: 182,
+    unit: "USD_B",
+    isExample: false,
+    provenance: "curated",
+    asOf: "2025-12-31",
+    sourceLabel: "MS via Steffen",
+    sourceUrl:
+      "https://www.sascha-steffen.de/updates/nvidia-500bn-ai-financing-credit-risk",
+  },
+  delta: {
+    display: "~2×",
+    direction: "up",
+    period: "YoY",
+    isExample: false,
+  },
+  note:
+    "US data-center debt issuance about $182B in 2025 — roughly doubled YoY (Morgan Stanley / FT·Bloomberg as summarized by Steffen, Aug 14, 2026). Industry estimate, not a live feed. Cite date 2026-08-14; year figure asOf 2025-12-31.",
+};
+
+/**
+ * Incremental debt share of hyperscaler capex ~32% trailing mid-2026
+ * (vs ~9% FY2024) — same Steffen / Morgan Stanley summary.
+ */
+export const dcDebtShareFallback: LiveMetricPayload = {
+  value: {
+    display: "~32%",
+    numeric: 32,
+    unit: "PCT",
+    isExample: false,
+    provenance: "curated",
+    asOf: "2026-06-30",
+    sourceLabel: "MS via Steffen",
+    sourceUrl:
+      "https://www.sascha-steffen.de/updates/nvidia-500bn-ai-financing-credit-risk",
+  },
+  delta: {
+    display: "vs ~9% FY24",
+    direction: "up",
+    period: "mid-2026",
+    isExample: false,
+  },
+  note:
+    "Incremental debt funded ~32% of hyperscaler capex on a trailing basis by mid-2026, vs ~9% in FY2024 (Steffen summarizing Morgan Stanley, Aug 14, 2026). Curated industry estimate.",
+};

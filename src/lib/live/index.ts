@@ -4,11 +4,14 @@ import { fetchGpuRentalSpot } from "./gpu";
 import { fetchInterconnectQueue } from "./interconnect";
 import { fetchGlobalVcDeployed } from "./vc";
 import { fetchUsNationalDebt, fetchFy26Deficit } from "./debt";
+import { fetchDcDebtIssuance, fetchDcDebtShare } from "./dcDebt";
 import type { LiveMetricPayload } from "@/data/curated/fallbacks";
 
 export type WiredMetricKey =
   | "ai.northStar"
   | "data-center.northStar"
+  | "data-center.capitalPulse"
+  | "data-center.infraOrAdoption"
   | "capital-formation.northStar"
   | "capital-formation.capitalPulse"
   | "capital-formation.infraOrAdoption";
@@ -19,23 +22,30 @@ export type LiveBundle = {
   vc: LiveMetricPayload;
   debt: LiveMetricPayload;
   deficit: LiveMetricPayload;
+  dcDebtIssuance: LiveMetricPayload;
+  dcDebtShare: LiveMetricPayload;
   fetchedAt: string;
 };
 
 export async function fetchLiveBundle(): Promise<LiveBundle> {
-  const [gpu, interconnect, vc, debt, deficit] = await Promise.all([
-    fetchGpuRentalSpot(),
-    fetchInterconnectQueue(),
-    fetchGlobalVcDeployed(),
-    fetchUsNationalDebt(),
-    fetchFy26Deficit(),
-  ]);
+  const [gpu, interconnect, vc, debt, deficit, dcDebtIssuance, dcDebtShare] =
+    await Promise.all([
+      fetchGpuRentalSpot(),
+      fetchInterconnectQueue(),
+      fetchGlobalVcDeployed(),
+      fetchUsNationalDebt(),
+      fetchFy26Deficit(),
+      fetchDcDebtIssuance(),
+      fetchDcDebtShare(),
+    ]);
   return {
     gpu,
     interconnect,
     vc,
     debt,
     deficit,
+    dcDebtIssuance,
+    dcDebtShare,
     fetchedAt: new Date().toISOString(),
   };
 }
@@ -134,47 +144,91 @@ export function applyLiveOverlays(
     }
 
     if (s.slug === "data-center") {
-      if (/Hyperscale|capex/i.test(copy.metrics.infraOrAdoption.label) === false) {
-        // legacy: capex may still be north star in old seed
-        if (/Hyperscale|capex/i.test(copy.metrics.northStar.label)) {
-          const capex = { ...copy.metrics.northStar };
-          copy.metrics.infraOrAdoption = {
-            label: ensureExampleLabel(capex.label),
-            value: capex.value,
-            delta: capex.delta,
-          };
-        }
-      }
-      copy.metrics.infraOrAdoption = {
-        ...copy.metrics.infraOrAdoption,
-        label: ensureExampleLabel(
-          copy.metrics.infraOrAdoption.label.replace(/\s*\(EXAMPLE\)\s*$/i, "")
-        ),
-      };
       applyMetric(
         copy,
         "northStar",
         live.interconnect,
         "Interconnect queue (median IR→COD)"
       );
+      // Capital pulse = DC debt issuance (second homepage metric); debt share replaces EXAMPLE hyperscale capex.
+      applyMetric(
+        copy,
+        "capitalPulse",
+        live.dcDebtIssuance,
+        "US DC debt issuance (2025)"
+      );
+      applyMetric(
+        copy,
+        "infraOrAdoption",
+        live.dcDebtShare,
+        "Debt share of hyperscaler capex"
+      );
       copy.whyItMoved =
-        "U.S. median IR→COD interconnect queue is the binding curated bottleneck signal; hyperscale capex remains an EXAMPLE proxy.";
+        "Interconnect queue remains the binding physical bottleneck; US data-center debt issuance ~$182B in 2025 (~2× YoY) is the curated capital pulse into DC build-out (MS via Steffen) — not EXAMPLE.";
       copy.catalyst = {
         id: "dc-c1",
         label: "Grid interconnection queue",
         urgency: "high",
         note: live.interconnect.note ?? "LBNL Queued Up median IR→COD",
       };
+      copy.catalysts = [
+        {
+          id: "dc-c1",
+          label: "Grid interconnection queue",
+          urgency: "high",
+          note: live.interconnect.note,
+        },
+        {
+          id: "dc-c-nvda-financing",
+          label: "Nvidia >$500B compute financing MOUs",
+          urgency: "high",
+          note:
+            "Apollo / BlackRock / Blackstone / Brookfield / GS / KKR — announced platforms to mobilize >$500B third-party capital; MOUs, not committed (Nvidia, Aug 10, 2026).",
+        },
+        ...s.catalysts.filter(
+          (c) => c.id !== "dc-c1" && c.id !== "dc-c-nvda-financing"
+        ),
+      ];
+      copy.movers = [
+        {
+          id: "dc-m-hyperion",
+          name: "Meta Hyperion SPV debt",
+          delta: {
+            display: "$27B",
+            direction: "up",
+            period: "issue",
+            isExample: false,
+          },
+          context:
+            "A+ SPV/JV (Blue Owl 80%, Meta 20%); off Meta BS — template for platform model (MS/Steffen).",
+        },
+        ...s.movers.filter((m) => m.id !== "dc-m-hyperion"),
+      ];
       copy.sources = [
         {
           label: live.interconnect.value.sourceLabel ?? "LBNL Queued Up",
           kind: "curated",
           url: live.interconnect.value.sourceUrl,
         },
-        ...s.sources.filter((x) => !/queue/i.test(x.label)),
+        {
+          label: live.dcDebtIssuance.value.sourceLabel ?? "MS via Steffen",
+          kind: "curated",
+          url: live.dcDebtIssuance.value.sourceUrl,
+        },
+        {
+          label: "Nvidia >$500B financing MOUs",
+          kind: "curated",
+          url: "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+        },
+        ...s.sources.filter(
+          (x) =>
+            !/queue|capex|Steffen|DC debt|debt issuance|Hyperion|Nvidia/i.test(
+              x.label
+            )
+        ),
       ];
       copy.methodology =
-        "North star is interconnect queue — LBNL Queued Up 2026 median IR→COD for U.S. projects completed in 2025 (61 months ≈ 5.1 yrs; curated). Hyperscale capex and other DC metrics remain EXAMPLE DATA.";
+        "North star is interconnect queue — LBNL Queued Up 2026 median IR→COD for U.S. projects completed in 2025 (61 months ≈ 5.1 yrs; curated). Capital pulse is US data-center debt issuance ~$182B in 2025 (~2× YoY) — industry estimate via Morgan Stanley / FT·Bloomberg as summarized by Steffen (2026-08-14), curated not live API. Secondary: incremental debt share of hyperscaler capex ~32% trailing mid-2026 vs ~9% FY2024 (same cite). Catalyst: Nvidia MOUs with Apollo/BlackRock/Blackstone/Brookfield/GS/KKR to mobilize >$500B third-party compute financing (announced platforms, not committed; Aug 10, 2026). Mover: Meta Hyperion ~$27B SPV debt. Talent/facilities roles remain EXAMPLE DATA.";
     }
 
     if (s.slug === "capital-formation") {
@@ -319,7 +373,10 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
   // Drop EXAMPLE pulse items that conflict with wired signals (e.g. old GPU −22%)
   const exampleSafe = globalPulseExample.filter((p) => {
     if (p.sectorSlug === "ai" && /GPU/i.test(p.label)) return false;
-    if (p.sectorSlug === "data-center" && /Interconnect|queue/i.test(p.label))
+    if (
+      p.sectorSlug === "data-center" &&
+      /Interconnect|queue|DC debt|debt issuance/i.test(p.label)
+    )
       return false;
     if (p.sectorSlug === "capital-formation" && /VC deployed|Global VC|national debt|debt/i.test(p.label))
       return false;
@@ -335,4 +392,6 @@ export {
   fetchGlobalVcDeployed,
   fetchUsNationalDebt,
   fetchFy26Deficit,
+  fetchDcDebtIssuance,
+  fetchDcDebtShare,
 };

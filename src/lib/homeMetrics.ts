@@ -19,7 +19,7 @@ export function pickSecondary(metrics: SectorMetrics): MetricSlot {
     let score = 0;
     if (m.delta.direction !== "flat") score += 2;
     if (m.value.numeric != null) score += 1;
-    if (/capital|deployed|funding|ARR|capex|spend/i.test(m.label)) score += 1;
+    if (/capital|deployed|funding|ARR|capex|spend|debt|issuance/i.test(m.label)) score += 1;
     return score;
   };
   const [a, b] = candidates;

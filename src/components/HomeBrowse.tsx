@@ -103,8 +103,9 @@ export function HomeBrowse({
       <footer className="border-t border-[#e5e2db] pt-3">
         <p className="text-[11px] leading-relaxed text-[#8a847a]">
           Live / curated: GPU (RunPod), interconnect (LBNL), Global VC
-          (Dealroom), US national debt (Kalshi CDF). Other figures are example
-          placeholders — open a sector for full detail.
+          (Dealroom), US national debt (Kalshi CDF). Data center card also
+          wires US DC debt issuance $182B (MS via Steffen). Other figures are
+          example placeholders — open a sector for full detail.
           {asOf ? ` Bundle as of ${asOf}.` : ""}
         </p>
       </footer>

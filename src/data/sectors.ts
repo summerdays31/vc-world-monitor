@@ -322,8 +322,8 @@ export const sectors: Sector[] = [
     name: "Data center",
     shortName: "DC",
     mode: "Mature",
-    blurb: "Power, land, cooling, and interconnect for AI/cloud load.",
-    whyItMoved: "U.S. median IR→COD interconnect queue is the binding live/curated bottleneck signal; hyperscale capex remains an EXAMPLE proxy.",
+    blurb: "Power, land, cooling, interconnect, and debt into AI/cloud build-out.",
+    whyItMoved: "Interconnect queue is the binding bottleneck; US DC debt issuance ~$182B (2025) is the curated capital pulse into build-out.",
     catalyst: {
       id: "dc-c1",
       label: "Grid interconnection queue",
@@ -334,18 +334,18 @@ export const sectors: Sector[] = [
     metrics: {
       northStar: {
         label: "Interconnect queue (median IR→COD)",
-        value: v("4.8 yrs", 4.8, "CUSTOM"),
-        delta: d("+0.4y", "up", "YoY"),
+        value: v("5.1 yrs", 5.1, "CUSTOM"),
+        delta: d("+0.5y", "up", "YoY"),
       },
       capitalPulse: {
-        label: "DC / infra PE+debt",
-        value: v("$18.6B", 18.6, "USD_B"),
-        delta: d("+12%", "up"),
+        label: "US DC debt issuance (2025)",
+        value: v("$182B", 182, "USD_B"),
+        delta: d("~2×", "up", "YoY"),
       },
       infraOrAdoption: {
-        label: "Hyperscale capex proxy (EXAMPLE)",
-        value: v("$214B", 214, "USD_B"),
-        delta: d("+24%", "up", "YoY"),
+        label: "Debt share of hyperscaler capex",
+        value: v("~32%", 32, "PCT"),
+        delta: d("vs ~9% FY24", "up", "mid-2026"),
       },
       talentOrAdoption: {
         label: "Critical facilities roles",
@@ -359,6 +359,12 @@ export const sectors: Sector[] = [
       },
     },
     movers: [
+      {
+        id: "dc-m-hyperion",
+        name: "Meta Hyperion SPV debt",
+        delta: d("$27B", "up", "issue"),
+        context: "A+ SPV/JV template for platform model (seed; curated overlay)",
+      },
       {
         id: "dc-m1",
         name: "Liquid cooling attach",
@@ -374,6 +380,12 @@ export const sectors: Sector[] = [
     ],
     catalysts: [
       { id: "dc-c1", label: "Grid interconnection queue", urgency: "high" },
+      {
+        id: "dc-c-nvda-financing",
+        label: "Nvidia >$500B compute financing MOUs",
+        urgency: "high",
+        note: "Announced platforms / not committed (Aug 10, 2026)",
+      },
       { id: "dc-c2", label: "Nuclear / SMR PPAs", urgency: "medium" },
     ],
     policy: {
@@ -382,11 +394,11 @@ export const sectors: Sector[] = [
       EU: { stance: "Energy efficiency rules", note: "PUE / water reporting" },
     },
     sources: [
-      { label: "EXAMPLE — capex composite", kind: "example" },
       { label: "EXAMPLE — queue (seed)", kind: "example" },
+      { label: "EXAMPLE — DC debt (seed)", kind: "example" },
     ],
     methodology:
-      "North star is interconnect queue (wired curated via LBNL Queued Up when available). Hyperscale capex and other figures remain EXAMPLE DATA.",
+      "North star is interconnect queue (wired curated via LBNL Queued Up). Capital pulse is US DC debt issuance (wired curated via MS/Steffen). Debt share of hyperscaler capex is curated secondary. Talent roles remain EXAMPLE DATA.",
   },
   {
     slug: "defense",

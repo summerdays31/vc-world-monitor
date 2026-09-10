@@ -4,7 +4,7 @@ import { fetchLiveBundle } from "@/lib/live";
 export const dynamic = "force-dynamic";
 
 /**
- * Daily warm of GPU + interconnect + VC + debt caches.
+ * Daily warm of GPU + interconnect + VC + debt + DC debt caches.
  * Vercel Cron: schedule in vercel.json (`0 19 * * *` ≈ 03:00 SGT).
  * Auth: when CRON_SECRET is set, require Authorization: Bearer <CRON_SECRET>.
  * When unset (local/dev), allow unauthenticated calls.
@@ -52,6 +52,18 @@ export async function GET(req: NextRequest) {
         provenance: data.deficit.value.provenance,
         stale: data.deficit.value.stale ?? false,
         asOf: data.deficit.value.asOf,
+      },
+      dcDebtIssuance: {
+        display: data.dcDebtIssuance.value.display,
+        provenance: data.dcDebtIssuance.value.provenance,
+        stale: data.dcDebtIssuance.value.stale ?? false,
+        asOf: data.dcDebtIssuance.value.asOf,
+      },
+      dcDebtShare: {
+        display: data.dcDebtShare.value.display,
+        provenance: data.dcDebtShare.value.provenance,
+        stale: data.dcDebtShare.value.stale ?? false,
+        asOf: data.dcDebtShare.value.asOf,
       },
     },
     {
