@@ -64,6 +64,37 @@ export const deficitBooksSeries: MetricSeries = {
   formatValue: (n) => `$${n.toFixed(1)}T`,
 };
 
+/** NOAA billion-dollar disaster costs — published annual points only. */
+export const noaaDisastersSeries: MetricSeries = {
+  id: "noaa-disasters",
+  title: "US billion-dollar disaster cost",
+  grain: "Annual · NOAA NCEI",
+  caption: "CPI-adjusted cost ($B) · complete years only",
+  points: [
+    { label: "2021", value: 164.5 },
+    { label: "2022", value: 183.6 },
+    { label: "2023", value: 95.3 },
+    { label: "2024", value: 182.7 },
+  ],
+  formatValue: (n) => `$${n.toFixed(1)}B`,
+};
+
+/** Netflix quarterly revenue from public shareholder letters (real points). */
+export const netflixRevenueSeries: MetricSeries = {
+  id: "netflix-revenue",
+  title: "Netflix quarterly revenue",
+  grain: "Quarterly · Netflix IR",
+  caption: "Q2'25 → Q2'26 from shareholder letters",
+  points: [
+    { label: "Q2'25", value: 11.079 },
+    { label: "Q3'25", value: 11.51 },
+    { label: "Q4'25", value: 12.051 },
+    { label: "Q1'26", value: 12.25 },
+    { label: "Q2'26", value: 12.56 },
+  ],
+  formatValue: (n) => `$${n.toFixed(2)}B`,
+};
+
 /**
  * Instrument key → series. Keys without an entry are headline-only
  * (GPU, VC H1, DC debt issuance ~2× with no precise prior, US debt level).
@@ -72,4 +103,6 @@ export const seriesByKey: Record<string, MetricSeries | undefined> = {
   interconnect: interconnectSeries,
   dcDebtShare: dcDebtShareSeries,
   deficit: deficitBooksSeries,
+  noaaDisasters: noaaDisastersSeries,
+  netflixRevenue: netflixRevenueSeries,
 };

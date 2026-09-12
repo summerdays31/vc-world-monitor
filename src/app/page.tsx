@@ -11,6 +11,7 @@ export default async function HomePage() {
     <HomeBrowse
       sectors={sectors}
       asOf={asOf}
+      liveSeries={live.series}
       instruments={{
         gpu: live.gpu,
         interconnect: live.interconnect,

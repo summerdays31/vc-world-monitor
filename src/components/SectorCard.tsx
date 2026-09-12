@@ -1,37 +1,29 @@
 import Link from "next/link";
+import type { MetricSeries } from "@/data/series";
 import type { Sector } from "@/data/types";
-import { seriesByKey } from "@/data/series";
 import {
   cleanLabel,
-  realMetricSlots,
+  homeMetricSlots,
   type MetricSlot,
 } from "@/lib/homeMetrics";
+import { seriesForSectorSlot } from "@/lib/metricSeries";
 import { DeltaPill } from "./DeltaPill";
 import { ProvenanceMark } from "./ProvenanceBadge";
 import { ContextBars } from "./charts/ContextBars";
-
-function seriesForSlot(sectorSlug: string, slot: MetricSlot) {
-  if (sectorSlug === "data-center") {
-    if (/Interconnect/i.test(slot.label)) return seriesByKey.interconnect;
-    if (/Debt share/i.test(slot.label)) return seriesByKey.dcDebtShare;
-  }
-  if (sectorSlug === "capital-formation") {
-    if (/deficit/i.test(slot.label)) return seriesByKey.deficit;
-  }
-  return undefined;
-}
 
 function MetricLane({
   sectorSlug,
   slot,
   primary,
+  liveSeries,
 }: {
   sectorSlug: string;
   slot: MetricSlot;
   primary?: boolean;
+  liveSeries?: Record<string, MetricSeries | undefined>;
 }) {
   const { value, delta } = slot;
-  const series = seriesForSlot(sectorSlug, slot);
+  const series = seriesForSectorSlot(sectorSlug, slot, liveSeries);
   return (
     <div className={primary ? "space-y-2 pb-3" : "space-y-2 pt-3"}>
       <div className="flex items-baseline justify-between gap-2">
@@ -68,9 +60,15 @@ function MetricLane({
   );
 }
 
-/** Home sector card — real metrics only (headline + chart when series exists). */
-export function SectorCard({ sector }: { sector: Sector }) {
-  const slots = realMetricSlots(sector.metrics);
+/** Home sector card — real metrics only (max 2; chart when series exists). */
+export function SectorCard({
+  sector,
+  liveSeries,
+}: {
+  sector: Sector;
+  liveSeries?: Record<string, MetricSeries | undefined>;
+}) {
+  const slots = homeMetricSlots(sector.metrics);
   if (slots.length === 0) return null;
 
   return (
@@ -106,6 +104,7 @@ export function SectorCard({ sector }: { sector: Sector }) {
             sectorSlug={sector.slug}
             slot={slot}
             primary={i === 0}
+            liveSeries={liveSeries}
           />
         ))}
       </div>

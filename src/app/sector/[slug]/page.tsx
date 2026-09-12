@@ -5,7 +5,9 @@ import { PolicyToggle } from "@/components/PolicyToggle";
 import { SectorChipStrip } from "@/components/SectorChipStrip";
 import { ContextBars } from "@/components/charts/ContextBars";
 import { seriesByKey } from "@/data/series";
+import { seriesForSectorSlot } from "@/lib/metricSeries";
 import {
+  getMonitorBundle,
   getSectorLive,
   listSectors,
   wiredSectorParams,
@@ -42,6 +44,12 @@ function seriesForLabel(slug: string, label: string) {
   if (slug === "capital-formation" && /deficit/i.test(label)) {
     return seriesByKey.deficit;
   }
+  if (slug === "climate-adaptation" && /billion-dollar/i.test(label)) {
+    return seriesByKey.noaaDisasters;
+  }
+  if (slug === "attention-media" && /Netflix/i.test(label)) {
+    return seriesByKey.netflixRevenue;
+  }
   return undefined;
 }
 
@@ -51,9 +59,10 @@ export default async function SectorDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [sector, allSectors] = await Promise.all([
+  const [sector, allSectors, bundle] = await Promise.all([
     getSectorLive(slug),
     listSectors(),
+    getMonitorBundle(),
   ]);
   if (!sector) notFound();
 
@@ -62,7 +71,9 @@ export default async function SectorDetailPage({
   const rest = slots.slice(1);
   if (!primary) notFound();
 
-  const primarySeries = seriesForLabel(slug, primary.label);
+  const primarySeries =
+    seriesForSectorSlot(slug, primary, bundle.live.series) ??
+    seriesForLabel(slug, primary.label);
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-5 py-8 sm:px-8 sm:py-10">
@@ -145,7 +156,7 @@ export default async function SectorDetailPage({
       {rest.length > 0 ? (
         <section className="grid gap-4 sm:grid-cols-2">
           {rest.map((m) => {
-            const series = seriesForLabel(slug, m.label);
+            const series = seriesForSectorSlot(slug, m, bundle.live.series) ?? seriesForLabel(slug, m.label);
             return (
               <div
                 key={m.label}

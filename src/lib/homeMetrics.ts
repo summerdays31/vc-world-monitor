@@ -2,10 +2,26 @@ import type { Sector, SectorMetrics } from "@/data/types";
 
 export type MetricSlot = SectorMetrics["capitalPulse"];
 
+/** All first-class sectors with at least one live/curated metric. */
 export const WIRED_SECTOR_SLUGS = [
   "ai",
+  "healthcare",
+  "consumer",
+  "robotics",
   "data-center",
+  "defense",
+  "space",
+  "materials",
+  "leisure",
+  "energy-grid",
+  "compute-semiconductors",
+  "labor-demography",
   "capital-formation",
+  "bio-longevity",
+  "security-cyber",
+  "climate-adaptation",
+  "education-skills",
+  "attention-media",
 ] as const;
 
 export type WiredSectorSlug = (typeof WIRED_SECTOR_SLUGS)[number];
@@ -38,6 +54,11 @@ export function realMetricSlots(metrics: SectorMetrics): MetricSlot[] {
     metrics.talentOrAdoption,
   ];
   return order.filter((m) => !m.value.isExample);
+}
+
+/** Home cards: max 2 real metrics per sector. */
+export function homeMetricSlots(metrics: SectorMetrics): MetricSlot[] {
+  return realMetricSlots(metrics).slice(0, 2);
 }
 
 export function cleanLabel(label: string): string {

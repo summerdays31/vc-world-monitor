@@ -4,16 +4,27 @@ import { fetchInterconnectQueue } from "./interconnect";
 import { fetchGlobalVcDeployed } from "./vc";
 import { fetchUsNationalDebt, fetchFy26Deficit } from "./debt";
 import { fetchDcDebtIssuance, fetchDcDebtShare } from "./dcDebt";
+import {
+  fetchRetailSales,
+  fetchUnemployment,
+  fetchJoltsOpenings,
+  fetchCopperPrice,
+  fetchDefenseOutlays,
+  fetchSemiIp,
+  fetchSoxIndex,
+  fetchHenryHub,
+  fetchEduEmployment,
+  fetchRoboticsUsInstalls,
+  fetchNoaaDisasters,
+  fetchNetflixRevenue,
+  fetchTsaThroughput,
+  fetchActiveInterventionalTrials,
+  fetchLongevityTrials,
+  fetchCisaKevCount,
+  fetchOrbitalLaunchesYtd,
+} from "./sectorPublic";
 import type { LiveMetricPayload } from "@/data/curated/fallbacks";
-
-export type WiredMetricKey =
-  | "ai.northStar"
-  | "data-center.northStar"
-  | "data-center.capitalPulse"
-  | "data-center.infraOrAdoption"
-  | "capital-formation.northStar"
-  | "capital-formation.capitalPulse"
-  | "capital-formation.infraOrAdoption";
+import type { MetricSeries } from "@/data/series";
 
 export type LiveBundle = {
   gpu: LiveMetricPayload;
@@ -23,20 +34,100 @@ export type LiveBundle = {
   deficit: LiveMetricPayload;
   dcDebtIssuance: LiveMetricPayload;
   dcDebtShare: LiveMetricPayload;
+  // New sector instruments
+  retailSales: LiveMetricPayload;
+  unemployment: LiveMetricPayload;
+  jolts: LiveMetricPayload;
+  copper: LiveMetricPayload;
+  defenseOutlays: LiveMetricPayload;
+  semiIp: LiveMetricPayload;
+  sox: LiveMetricPayload;
+  henryHub: LiveMetricPayload;
+  eduEmployment: LiveMetricPayload;
+  roboticsUs: LiveMetricPayload;
+  noaaDisasters: LiveMetricPayload;
+  netflixRevenue: LiveMetricPayload;
+  tsa: LiveMetricPayload;
+  clinicalTrialsActive: LiveMetricPayload;
+  longevityTrials: LiveMetricPayload;
+  cisaKev: LiveMetricPayload;
+  orbitalLaunches: LiveMetricPayload;
   fetchedAt: string;
+  /** Optional chart series keyed for UI lookup */
+  series: Record<string, MetricSeries | undefined>;
 };
 
+type PayloadWithSeries = LiveMetricPayload & { series?: MetricSeries };
+
+function pickSeries(p: PayloadWithSeries): MetricSeries | undefined {
+  return p.series;
+}
+
 export async function fetchLiveBundle(): Promise<LiveBundle> {
-  const [gpu, interconnect, vc, debt, deficit, dcDebtIssuance, dcDebtShare] =
-    await Promise.all([
-      fetchGpuRentalSpot(),
-      fetchInterconnectQueue(),
-      fetchGlobalVcDeployed(),
-      fetchUsNationalDebt(),
-      fetchFy26Deficit(),
-      fetchDcDebtIssuance(),
-      fetchDcDebtShare(),
-    ]);
+  const [
+    gpu,
+    interconnect,
+    vc,
+    debt,
+    deficit,
+    dcDebtIssuance,
+    dcDebtShare,
+    retailSales,
+    unemployment,
+    jolts,
+    copper,
+    defenseOutlays,
+    semiIp,
+    sox,
+    henryHub,
+    eduEmployment,
+    roboticsUs,
+    noaaDisasters,
+    netflixRevenue,
+    tsa,
+    clinicalTrialsActive,
+    longevityTrials,
+    cisaKev,
+    orbitalLaunches,
+  ] = await Promise.all([
+    fetchGpuRentalSpot(),
+    fetchInterconnectQueue(),
+    fetchGlobalVcDeployed(),
+    fetchUsNationalDebt(),
+    fetchFy26Deficit(),
+    fetchDcDebtIssuance(),
+    fetchDcDebtShare(),
+    fetchRetailSales(),
+    fetchUnemployment(),
+    fetchJoltsOpenings(),
+    fetchCopperPrice(),
+    fetchDefenseOutlays(),
+    fetchSemiIp(),
+    fetchSoxIndex(),
+    fetchHenryHub(),
+    fetchEduEmployment(),
+    fetchRoboticsUsInstalls(),
+    fetchNoaaDisasters(),
+    fetchNetflixRevenue(),
+    fetchTsaThroughput(),
+    fetchActiveInterventionalTrials(),
+    fetchLongevityTrials(),
+    fetchCisaKevCount(),
+    fetchOrbitalLaunchesYtd(),
+  ]);
+
+  const series: LiveBundle["series"] = {
+    retailSales: pickSeries(retailSales as PayloadWithSeries),
+    unemployment: pickSeries(unemployment as PayloadWithSeries),
+    jolts: pickSeries(jolts as PayloadWithSeries),
+    copper: pickSeries(copper as PayloadWithSeries),
+    defenseOutlays: pickSeries(defenseOutlays as PayloadWithSeries),
+    semiIp: pickSeries(semiIp as PayloadWithSeries),
+    sox: pickSeries(sox as PayloadWithSeries),
+    henryHub: pickSeries(henryHub as PayloadWithSeries),
+    eduEmployment: pickSeries(eduEmployment as PayloadWithSeries),
+  };
+
   return {
     gpu,
     interconnect,
@@ -45,7 +136,25 @@ export async function fetchLiveBundle(): Promise<LiveBundle> {
     deficit,
     dcDebtIssuance,
     dcDebtShare,
+    retailSales,
+    unemployment,
+    jolts,
+    copper,
+    defenseOutlays,
+    semiIp,
+    sox,
+    henryHub,
+    eduEmployment,
+    roboticsUs,
+    noaaDisasters,
+    netflixRevenue,
+    tsa,
+    clinicalTrialsActive,
+    longevityTrials,
+    cisaKev,
+    orbitalLaunches,
     fetchedAt: new Date().toISOString(),
+    series,
   };
 }
 
@@ -58,7 +167,6 @@ function applyMetric(
   const m = sector.metrics[slot];
   if (label) m.label = label;
   m.value = payload.value;
-  // Schema still requires Delta; empty display = no change (UI shows —)
   m.delta = payload.delta ?? {
     display: "",
     direction: "flat",
@@ -71,17 +179,12 @@ function ensureExampleLabel(label: string): string {
   return /\(EXAMPLE\)/i.test(label) ? label : `${label} (EXAMPLE)`;
 }
 
-/**
- * Overlay live / curated public figures onto seed sectors.
- * Wired metrics are promoted to North Star for AI / Data center / Capital.
- * All other metrics remain EXAMPLE DATA.
- */
-
-/** Drop EXAMPLE movers / example-kind sources; keep qualitative policy. */
+/** Drop EXAMPLE movers / example-kind sources; zero structural gauge. */
 function sanitizeWiredSector(copy: Sector): Sector {
   copy.movers = copy.movers.filter((m) => !m.delta.isExample);
-  copy.sources = copy.sources.filter((s) => s.kind !== "example" && s.kind !== "placeholder");
-  // Neutralize remaining EXAMPLE metric slots so UI never surfaces them
+  copy.sources = copy.sources.filter(
+    (s) => s.kind !== "example" && s.kind !== "placeholder"
+  );
   for (const slot of [
     "northStar",
     "capitalPulse",
@@ -108,7 +211,6 @@ function sanitizeWiredSector(copy: Sector): Sector {
       };
     }
   }
-  // Structural gauge is seed EXAMPLE — zero it so UI can hide
   copy.metrics.structuralGauge = {
     label: "",
     score: 0,
@@ -116,6 +218,37 @@ function sanitizeWiredSector(copy: Sector): Sector {
   };
   return copy;
 }
+
+function sourceTag(payload: LiveMetricPayload) {
+  return {
+    label: payload.value.sourceLabel ?? "Source",
+    kind: (payload.value.provenance === "live" ? "live" : "curated") as
+      | "live"
+      | "curated",
+    url: payload.value.sourceUrl,
+  };
+}
+
+const WIRED_SLUGS = new Set([
+  "ai",
+  "data-center",
+  "capital-formation",
+  "healthcare",
+  "consumer",
+  "robotics",
+  "defense",
+  "space",
+  "materials",
+  "leisure",
+  "energy-grid",
+  "compute-semiconductors",
+  "labor-demography",
+  "bio-longevity",
+  "security-cyber",
+  "climate-adaptation",
+  "education-skills",
+  "attention-media",
+]);
 
 export function applyLiveOverlays(
   sectors: Sector[],
@@ -127,19 +260,15 @@ export function applyLiveOverlays(
       metrics: { ...s.metrics },
       sources: [...s.sources],
       catalysts: [...s.catalysts],
+      movers: [...s.movers],
     };
-    // Deep-copy metric slots we may mutate
     copy.metrics.northStar = { ...s.metrics.northStar };
     copy.metrics.capitalPulse = { ...s.metrics.capitalPulse };
     copy.metrics.infraOrAdoption = { ...s.metrics.infraOrAdoption };
     copy.metrics.talentOrAdoption = { ...s.metrics.talentOrAdoption };
 
     if (s.slug === "ai") {
-      // Keep ARR (or prior north-star EXAMPLE) in infra slot
-      if (!/GPU rental/i.test(copy.metrics.infraOrAdoption.label)) {
-        // already swapped in seed
-      } else {
-        // legacy seed safety: swap if GPU still in infra
+      if (/GPU rental/i.test(copy.metrics.infraOrAdoption.label)) {
         const arr = { ...copy.metrics.northStar };
         copy.metrics.infraOrAdoption = {
           label: ensureExampleLabel(arr.label),
@@ -169,18 +298,10 @@ export function applyLiveOverlays(
           urgency: "high",
           note: live.gpu.note,
         },
-        ...s.catalysts.filter((c) => c.id !== "ai-c-gpu" && c.id !== "ai-c1"),
       ];
-      copy.sources = [
-        {
-          label: live.gpu.value.sourceLabel ?? "RunPod",
-          kind: live.gpu.value.provenance === "live" ? "live" : "curated",
-          url: live.gpu.value.sourceUrl,
-        },
-        ...s.sources.filter((x) => !/GPU|gpu/i.test(x.label)),
-      ];
+      copy.sources = [sourceTag(live.gpu)];
       copy.methodology =
-        "North star is GPU rental spot — RunPod public GraphQL H100 on-demand floor (live, daily cache + cron warm; curated stale fallback). No other AI metrics are sourced yet.";
+        "North star is GPU rental spot — RunPod public GraphQL H100 on-demand floor (live, daily cache + cron warm; curated stale fallback).";
     }
 
     if (s.slug === "data-center") {
@@ -190,7 +311,6 @@ export function applyLiveOverlays(
         live.interconnect,
         "Interconnect queue (median IR→COD)"
       );
-      // Capital pulse = DC debt issuance (second homepage metric); debt share replaces EXAMPLE hyperscale capex.
       applyMetric(
         copy,
         "capitalPulse",
@@ -225,9 +345,6 @@ export function applyLiveOverlays(
           note:
             "Apollo / BlackRock / Blackstone / Brookfield / GS / KKR — announced platforms to mobilize >$500B third-party capital; MOUs, not committed (Nvidia, Aug 10, 2026).",
         },
-        ...s.catalysts.filter(
-          (c) => c.id !== "dc-c1" && c.id !== "dc-c-nvda-financing"
-        ),
       ];
       copy.movers = [
         {
@@ -242,38 +359,21 @@ export function applyLiveOverlays(
           context:
             "A+ SPV/JV (Blue Owl 80%, Meta 20%); off Meta BS — template for platform model (MS/Steffen).",
         },
-        ...s.movers.filter((m) => m.id !== "dc-m-hyperion"),
       ];
       copy.sources = [
-        {
-          label: live.interconnect.value.sourceLabel ?? "LBNL Queued Up",
-          kind: "curated",
-          url: live.interconnect.value.sourceUrl,
-        },
-        {
-          label: live.dcDebtIssuance.value.sourceLabel ?? "MS via Steffen",
-          kind: "curated",
-          url: live.dcDebtIssuance.value.sourceUrl,
-        },
+        sourceTag(live.interconnect),
+        sourceTag(live.dcDebtIssuance),
         {
           label: "Nvidia >$500B financing MOUs",
           kind: "curated",
           url: "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
         },
-        ...s.sources.filter(
-          (x) =>
-            !/queue|capex|Steffen|DC debt|debt issuance|Hyperion|Nvidia/i.test(
-              x.label
-            )
-        ),
       ];
       copy.methodology =
-        "North star is interconnect queue — LBNL Queued Up 2026 median IR→COD for U.S. projects completed in 2025 (61 months ≈ 5.1 yrs; curated). Capital pulse is US data-center debt issuance ~$182B in 2025 (~2× YoY) — industry estimate via Morgan Stanley / FT·Bloomberg as summarized by Steffen (2026-08-14), curated (not a live API). Secondary: incremental debt share of hyperscaler capex ~32% trailing mid-2026 vs ~9% FY2024 (same cite). Catalyst: Nvidia MOUs with Apollo/BlackRock/Blackstone/Brookfield/GS/KKR to mobilize >$500B third-party compute financing (announced platforms, not committed; Aug 10, 2026). Mover: Meta Hyperion ~$27B SPV debt. No unsourced talent or facilities figures are shown.";
+        "North star is interconnect queue — LBNL Queued Up 2026. Capital pulse is US DC debt issuance ~$182B (2025). Secondary: debt share of hyperscaler capex ~32% mid-2026.";
     }
 
     if (s.slug === "capital-formation") {
-      // Debt is capital north star; keep Global VC as wired capitalPulse;
-      // FY26 deficit as quiet infra secondary.
       applyMetric(copy, "northStar", live.debt, "US national debt");
       applyMetric(
         copy,
@@ -302,44 +402,315 @@ export function applyLiveOverlays(
           urgency: "high",
           note: live.debt.note,
         },
-        ...s.catalysts.filter((c) => c.id !== "cf-c-debt"),
       ];
-      copy.sources = [
-        {
-          label: live.debt.value.sourceLabel ?? "Kalshi CDF",
-          kind: "curated",
-          url: live.debt.value.sourceUrl,
-        },
-        {
-          label: live.vc.value.sourceLabel ?? "Dealroom",
-          kind: live.vc.value.provenance === "live" ? "live" : "curated",
-          url: live.vc.value.sourceUrl,
-        },
-        ...s.sources.filter(
-          (x) => !/VC deployed|national debt|Kalshi|Mansour/i.test(x.label)
-        ),
-      ];
+      copy.sources = [sourceTag(live.debt), sourceTag(live.vc)];
       copy.methodology =
-        "North star is gross US national debt ($40.10T) curated from the Kalshi Citizen Debt Forecast / Tarek Mansour launch post (2026-09-03). Capital pulse is Global VC H1 YTD from Dealroom (live scrape + curated fallback). FY26 deficit $1.9T is the same curated fiscal post. No unsourced capital figures are shown.";
+        "North star is gross US national debt ($40.10T) curated from Kalshi CDF / Mansour (2026-09-03). Capital pulse is Global VC H1 YTD from Dealroom. FY26 deficit $1.9T same curated fiscal post.";
     }
 
-    if (
-      s.slug === "ai" ||
-      s.slug === "data-center" ||
-      s.slug === "capital-formation"
-    ) {
-      // Restrict catalysts to sourced ones only
-      if (s.slug === "ai") {
-        copy.catalysts = copy.catalysts.filter((c) => c.id === "ai-c-gpu");
-      }
-      if (s.slug === "data-center") {
-        copy.catalysts = copy.catalysts.filter(
-          (c) => c.id === "dc-c1" || c.id === "dc-c-nvda-financing"
-        );
-      }
-      if (s.slug === "capital-formation") {
-        copy.catalysts = copy.catalysts.filter((c) => c.id === "cf-c-debt");
-      }
+    if (s.slug === "healthcare") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.clinicalTrialsActive,
+        "Active interventional trials"
+      );
+      copy.whyItMoved =
+        "ClinicalTrials.gov active interventional study count is the live pipeline signal for care / therapeutics activity.";
+      copy.catalyst = {
+        id: "hc-c-trials",
+        label: "Active interventional trials",
+        urgency: "medium",
+        note: live.clinicalTrialsActive.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.clinicalTrialsActive)];
+      copy.methodology =
+        "North star is ClinicalTrials.gov totalCount for interventional studies in Recruiting / Enrolling by invitation / Active, not recruiting (live API).";
+    }
+
+    if (s.slug === "consumer") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.retailSales,
+        "US retail sales (monthly)"
+      );
+      copy.whyItMoved =
+        "Advance US retail & food services sales (FRED RSAFS) is the live demand pulse for consumer spend.";
+      copy.catalyst = {
+        id: "co-c-retail",
+        label: "US retail sales",
+        urgency: "medium",
+        note: live.retailSales.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.retailSales)];
+      copy.methodology =
+        "North star is FRED RSAFS (advance monthly retail & food services sales, SA) via keyless CSV; YoY Δ when prior-year month exists.";
+    }
+
+    if (s.slug === "robotics") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.roboticsUs,
+        "US industrial robot installs (2025)"
+      );
+      copy.whyItMoved =
+        "IFR preliminary US industrial robot installations rose 11% to 38,000 units in 2025 — curated annual pulse.";
+      copy.catalyst = {
+        id: "ro-c-ifr",
+        label: "US robot installs +11%",
+        urgency: "medium",
+        note: live.roboticsUs.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.roboticsUs)];
+      copy.methodology =
+        "North star is IFR preliminary US industrial robot installations for 2025 (38,000, +11% YoY) — press release Jun 18, 2026. Curated annual figure.";
+    }
+
+    if (s.slug === "defense") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.defenseOutlays,
+        "US defense outlays (SAAR)"
+      );
+      copy.whyItMoved =
+        "Federal defense consumption & investment (FRED FDEFX) is the live fiscal demand signal for the defense industrial base.";
+      copy.catalyst = {
+        id: "de-c-outlays",
+        label: "US defense outlays",
+        urgency: "medium",
+        note: live.defenseOutlays.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.defenseOutlays)];
+      copy.methodology =
+        "North star is FRED FDEFX (federal defense consumption expenditures & gross investment, bil$ SAAR) via keyless CSV.";
+    }
+
+    if (s.slug === "space") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.orbitalLaunches,
+        "Orbital launches (YTD)"
+      );
+      copy.whyItMoved =
+        "Wikipedia 2026 in spaceflight monthly orbital-launch tally is the live cadence signal for launch / LEO activity.";
+      copy.catalyst = {
+        id: "sp-c-launches",
+        label: "Orbital launches YTD",
+        urgency: "medium",
+        note: live.orbitalLaunches.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.orbitalLaunches)];
+      copy.methodology =
+        "North star is YTD orbital launch attempts from Wikipedia 2026 in spaceflight (Numbers of orbital launches → Total). Live scrape + curated fallback.";
+    }
+
+    if (s.slug === "materials") {
+      applyMetric(copy, "northStar", live.copper, "Global copper price");
+      copy.whyItMoved =
+        "Global copper price (FRED PCOPPUSDM) is the live critical-minerals / electrification materials pulse.";
+      copy.catalyst = {
+        id: "ma-c-copper",
+        label: "Copper price",
+        urgency: "medium",
+        note: live.copper.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.copper)];
+      copy.methodology =
+        "North star is FRED PCOPPUSDM (global copper price, USD/metric ton) via keyless CSV.";
+    }
+
+    if (s.slug === "leisure") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.tsa,
+        "TSA checkpoint travelers"
+      );
+      copy.whyItMoved =
+        "Daily TSA checkpoint traveler counts are the live IRL mobility / leisure demand signal.";
+      copy.catalyst = {
+        id: "le-c-tsa",
+        label: "TSA throughput",
+        urgency: "medium",
+        note: live.tsa.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.tsa)];
+      copy.methodology =
+        "North star is TSA public checkpoint traveler table (daily). Δ vs same table 7 days earlier when available.";
+    }
+
+    if (s.slug === "energy-grid") {
+      applyMetric(copy, "northStar", live.henryHub, "Henry Hub gas spot");
+      copy.whyItMoved =
+        "Henry Hub natural gas spot (FRED DHHNGSP) is the live US gas / power-input price signal.";
+      copy.catalyst = {
+        id: "eg-c-hh",
+        label: "Henry Hub spot",
+        urgency: "medium",
+        note: live.henryHub.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.henryHub)];
+      copy.methodology =
+        "North star is FRED DHHNGSP (Henry Hub natural gas spot, $/MMBtu) via keyless CSV.";
+    }
+
+    if (s.slug === "compute-semiconductors") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.semiIp,
+        "Semiconductor industrial production"
+      );
+      applyMetric(copy, "capitalPulse", live.sox, "PHLX SOX index");
+      copy.whyItMoved =
+        "Semiconductor industrial production (FRED IPG3344S) and PHLX SOX are the live compute / silicon cycle signals.";
+      copy.catalyst = {
+        id: "cs-c-semi",
+        label: "Semi IP + SOX",
+        urgency: "high",
+        note: live.semiIp.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.semiIp), sourceTag(live.sox)];
+      copy.methodology =
+        "North star is FRED IPG3344S (semiconductor IP index). Capital pulse is FRED NASDAQSOX (PHLX Semiconductor Sector Index).";
+    }
+
+    if (s.slug === "labor-demography") {
+      applyMetric(copy, "northStar", live.unemployment, "US unemployment rate");
+      applyMetric(copy, "capitalPulse", live.jolts, "JOLTS job openings");
+      copy.whyItMoved =
+        "Unemployment rate and JOLTS openings are the live labor-market tightness pair.";
+      copy.catalyst = {
+        id: "ld-c-labor",
+        label: "Unemployment + JOLTS",
+        urgency: "medium",
+        note: live.unemployment.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.unemployment), sourceTag(live.jolts)];
+      copy.methodology =
+        "North star is FRED UNRATE. Secondary is FRED JTSJOL (JOLTS job openings). Keyless CSV.";
+    }
+
+    if (s.slug === "bio-longevity") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.longevityTrials,
+        "Active aging / longevity trials"
+      );
+      copy.whyItMoved =
+        "ClinicalTrials.gov active aging/longevity study count is the live translational pipeline proxy.";
+      copy.catalyst = {
+        id: "bl-c-trials",
+        label: "Aging / longevity trials",
+        urgency: "medium",
+        note: live.longevityTrials.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.longevityTrials)];
+      copy.methodology =
+        "North star is ClinicalTrials.gov totalCount for active studies matching aging OR longevity OR \"healthy aging\".";
+    }
+
+    if (s.slug === "security-cyber") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.cisaKev,
+        "CISA KEV catalog size"
+      );
+      copy.whyItMoved =
+        "CISA Known Exploited Vulnerabilities catalog size is the live exploited-threat inventory signal.";
+      copy.catalyst = {
+        id: "sc-c-kev",
+        label: "CISA KEV catalog",
+        urgency: "high",
+        note: live.cisaKev.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.cisaKev)];
+      copy.methodology =
+        "North star is CISA KEV JSON feed vulnerability count (live).";
+    }
+
+    if (s.slug === "climate-adaptation") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.noaaDisasters,
+        "US billion-dollar disasters (2024)"
+      );
+      copy.whyItMoved =
+        "NOAA NCEI billion-dollar disaster losses are the curated physical-risk pulse (latest complete year in public time-series).";
+      copy.catalyst = {
+        id: "ca-c-noaa",
+        label: "NOAA billion-dollar disasters",
+        urgency: "high",
+        note: live.noaaDisasters.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.noaaDisasters)];
+      copy.methodology =
+        "North star is NOAA NCEI US billion-dollar disasters 2024 annual cost ($182.7B, 27 events) from public time-series JSON. 2025/2026 annual not yet published there.";
+    }
+
+    if (s.slug === "education-skills") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.eduEmployment,
+        "Education services employment"
+      );
+      copy.whyItMoved =
+        "BLS educational services employment (FRED CEU6561000001) is the live skill-formation labor pulse.";
+      copy.catalyst = {
+        id: "es-c-edu",
+        label: "Education employment",
+        urgency: "low",
+        note: live.eduEmployment.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.eduEmployment)];
+      copy.methodology =
+        "North star is FRED CEU6561000001 (all employees, educational services) via keyless CSV.";
+    }
+
+    if (s.slug === "attention-media") {
+      applyMetric(
+        copy,
+        "northStar",
+        live.netflixRevenue,
+        "Netflix quarterly revenue"
+      );
+      copy.whyItMoved =
+        "Netflix Q2'26 revenue (+13.4% YoY) is the curated public streaming / attention monetization pulse from IR.";
+      copy.catalyst = {
+        id: "am-c-nflx",
+        label: "Netflix Q2 revenue",
+        urgency: "medium",
+        note: live.netflixRevenue.note,
+      };
+      copy.catalysts = [copy.catalyst];
+      copy.sources = [sourceTag(live.netflixRevenue)];
+      copy.methodology =
+        "North star is Netflix Q2'26 revenue $12.56B from the Jul 16, 2026 shareholder letter (public IR PDF). Curated quarterly.";
+    }
+
+    if (WIRED_SLUGS.has(s.slug)) {
       return sanitizeWiredSector(copy);
     }
 
@@ -373,7 +744,7 @@ function pulseItem(
   };
 }
 
-/** Build global pulse from live/curated instruments only — no EXAMPLE movers. */
+/** Global pulse — signature instruments + a sample of new sector signals. */
 export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
   return [
     pulseItem("live-gpu", "ai", "AI", "GPU rental spot (H100-eq)", live.gpu),
@@ -392,13 +763,6 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
       live.dcDebtIssuance
     ),
     pulseItem(
-      "live-dc-share",
-      "data-center",
-      "Data center",
-      "Debt share of hyperscaler capex",
-      live.dcDebtShare
-    ),
-    pulseItem(
       "live-vc",
       "capital-formation",
       "Capital",
@@ -412,12 +776,34 @@ export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
       "US national debt",
       live.debt
     ),
+    pulseItem("live-tsa", "leisure", "Leisure", "TSA checkpoint travelers", live.tsa),
     pulseItem(
-      "live-deficit",
-      "capital-formation",
-      "Capital",
-      "FY26 federal deficit",
-      live.deficit
+      "live-retail",
+      "consumer",
+      "Consumer",
+      "US retail sales (monthly)",
+      live.retailSales
+    ),
+    pulseItem(
+      "live-unrate",
+      "labor-demography",
+      "Labor",
+      "US unemployment rate",
+      live.unemployment
+    ),
+    pulseItem(
+      "live-kev",
+      "security-cyber",
+      "Security",
+      "CISA KEV catalog size",
+      live.cisaKev
+    ),
+    pulseItem(
+      "live-launches",
+      "space",
+      "Space",
+      "Orbital launches (YTD)",
+      live.orbitalLaunches
     ),
   ];
 }

@@ -95,8 +95,9 @@ export function InstrumentBand({ instruments }: { instruments: Instruments }) {
             Global Market Overview
           </h1>
           <p className="mt-1 max-w-2xl text-[14px] leading-relaxed text-[#6b6560]">
-            Live and curated public signals only — GPU rental, interconnect,
-            DC capital, and fiscal / VC levels. No placeholder metrics.
+            Signature live/curated instruments — GPU, interconnect, DC capital,
+            fiscal / VC — plus a full Mature/Emerging sector board below. No
+            placeholder metrics.
           </p>
         </div>
       </div>
