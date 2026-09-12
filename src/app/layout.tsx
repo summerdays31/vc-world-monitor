@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { Suspense } from "react";
 import { Masthead } from "@/components/Masthead";
 import "./globals.css";
 
@@ -26,9 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full bg-[#f7f6f3] font-sans text-[#0a0a0a]">
-        <Suspense fallback={null}>
-          <Masthead />
-        </Suspense>
+        <Masthead />
         <main className="min-w-0">{children}</main>
       </body>
     </html>

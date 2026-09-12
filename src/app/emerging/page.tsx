@@ -1,119 +1,74 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { emergingSignals, getSector } from "@/data/sectors";
 
 export const metadata: Metadata = {
-  title: "Emerging signals",
+  title: "Method",
   description:
-    "Early-signal kit: search → creators → capital into enablers → unit economics → export → regulation → public comps.",
+    "How World Monitor chooses live and curated public signals — no unsourced editorial cards.",
 };
-
-const statusStyles = {
-  hot: "border-rose-200/80 bg-rose-50/60 text-rose-800",
-  warming: "border-amber-200/80 bg-amber-50/60 text-amber-800",
-  watch: "border-slate-200 bg-slate-50 text-slate-600",
-} as const;
 
 export default function EmergingPage() {
   return (
-    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10 space-y-10">
+    <div className="mx-auto max-w-6xl space-y-10 px-5 py-8 sm:px-8 sm:py-10">
       <header className="max-w-2xl space-y-2">
-        <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">
-          Early-signal kit
+        <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#8a847a]">
+          Method
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          Emerging categories
+        <h1 className="text-3xl font-semibold tracking-tight text-[#0a0a0a] sm:text-4xl">
+          Sourced signals only
         </h1>
-        <p className="text-[15px] leading-relaxed text-slate-500">
-          A repeatable ladder for spotting value accrual before the theme
-          becomes a mature tile:{" "}
-          <span className="font-medium text-slate-700">
-            search → creators → capital into enablers → unit economics → export →
-            regulation → public comps
-          </span>
-          . Cards below are worked{" "}
-          <span className="text-slate-400">example</span> only.
+        <p className="text-[15px] leading-relaxed text-[#6b6560]">
+          Early-signal editorial cards without public sources have been
+          removed. The public surface shows live fetches and curated published
+          figures only — never invented numbers.
         </p>
       </header>
 
-      <section className="rounded-xl bg-white p-5 ring-1 ring-slate-200/80">
-        <h2 className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-          How to use the kit
+      <section className="rounded-xl border border-[#e5e2db] bg-[#fffcf7] p-5">
+        <h2 className="text-[10px] font-medium uppercase tracking-wider text-[#8a847a]">
+          What qualifies
         </h2>
-        <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-4 grid gap-3 sm:grid-cols-2">
           {[
-            ["01 Search", "Query / filing / waitlist spikes before revenue"],
-            ["02 Supply", "Creators, labs, or OEMs forming pipelines"],
-            ["03 Enablers", "Capital concentrates in picks-and-shovels"],
-            ["04 Proof", "Unit economics + export + policy + comps"],
+            [
+              "01 Live",
+              "Public API or scrapeable page with a clear level (e.g. RunPod GraphQL, Dealroom guide).",
+            ],
+            [
+              "02 Curated",
+              "Published report or primary post with a citable figure (e.g. LBNL Queued Up, Kalshi CDF, MS via Steffen).",
+            ],
+            [
+              "03 Charts",
+              "Only when ≥2 real published points exist. Single-point metrics stay headline-only.",
+            ],
+            [
+              "04 Out",
+              "Any unsourced seed metric is deleted from home, sector, brief, and pulse.",
+            ],
           ].map(([t, b]) => (
-            <li key={t} className="rounded-lg bg-slate-50/70 p-3">
-              <div className="text-xs font-medium text-blue-600">{t}</div>
-              <p className="mt-1 text-[13px] text-slate-500">{b}</p>
+            <li key={t} className="rounded-lg bg-[#f0eee8]/50 p-3">
+              <div className="text-xs font-medium text-[#0a0a0a]">{t}</div>
+              <p className="mt-1 text-[13px] text-[#6b6560]">{b}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="grid gap-5">
-        {emergingSignals.map((card) => (
-          <article
-            key={card.id}
-            className="rounded-xl bg-white p-5 ring-1 ring-slate-200/80 opacity-[0.92]"
-          >
-            <div className="mb-4">
-              <div className="flex items-baseline gap-2">
-                <h2 className="text-xl font-semibold text-slate-900">
-                  {card.title}
-                </h2>
-                <span className="text-[10px] text-slate-400">example</span>
-              </div>
-              <p className="mt-1 max-w-3xl text-[13px] text-slate-500">
-                {card.thesis}
-              </p>
-            </div>
-
-            <div className="mb-4 flex flex-wrap gap-2">
-              {card.stages.map((st) => (
-                <div
-                  key={st.name}
-                  className={`max-w-xs rounded-lg border px-3 py-2 ${statusStyles[st.status]}`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-medium uppercase tracking-wide">
-                      {st.name}
-                    </span>
-                    <span className="text-[9px] uppercase opacity-70">
-                      {st.status}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs leading-snug opacity-90">
-                    {st.signal}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                Related
-              </span>
-              {card.relatedSectors.map((slug) => {
-                const s = getSector(slug);
-                return (
-                  <Link
-                    key={slug}
-                    href={`/sector/${slug}`}
-                    className="rounded-md px-2 py-0.5 text-[12px] text-blue-600 ring-1 ring-slate-200/80 hover:bg-blue-50"
-                  >
-                    {s?.shortName ?? slug}
-                  </Link>
-                );
-              })}
-            </div>
-          </article>
-        ))}
-      </section>
+      <p className="text-[14px] text-[#6b6560]">
+        See the{" "}
+        <Link href="/" className="font-medium text-[#0a0a0a] hover:underline">
+          overview
+        </Link>{" "}
+        for current instruments, or the{" "}
+        <Link
+          href="/brief"
+          className="font-medium text-[#0a0a0a] hover:underline"
+        >
+          brief
+        </Link>{" "}
+        for a short real-data summary.
+      </p>
     </div>
   );
 }

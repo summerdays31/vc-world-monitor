@@ -1,5 +1,4 @@
 import type { PulseItem, Sector } from "@/data/types";
-import { globalPulseExample } from "@/data/sectors";
 import { fetchGpuRentalSpot } from "./gpu";
 import { fetchInterconnectQueue } from "./interconnect";
 import { fetchGlobalVcDeployed } from "./vc";
@@ -77,6 +76,47 @@ function ensureExampleLabel(label: string): string {
  * Wired metrics are promoted to North Star for AI / Data center / Capital.
  * All other metrics remain EXAMPLE DATA.
  */
+
+/** Drop EXAMPLE movers / example-kind sources; keep qualitative policy. */
+function sanitizeWiredSector(copy: Sector): Sector {
+  copy.movers = copy.movers.filter((m) => !m.delta.isExample);
+  copy.sources = copy.sources.filter((s) => s.kind !== "example" && s.kind !== "placeholder");
+  // Neutralize remaining EXAMPLE metric slots so UI never surfaces them
+  for (const slot of [
+    "northStar",
+    "capitalPulse",
+    "infraOrAdoption",
+    "talentOrAdoption",
+  ] as const) {
+    const m = copy.metrics[slot];
+    if (m.value.isExample) {
+      copy.metrics[slot] = {
+        label: m.label.replace(/\s*\(EXAMPLE\)\s*$/i, "").trim(),
+        value: {
+          ...m.value,
+          display: "—",
+          numeric: undefined,
+          isExample: true,
+          provenance: "example",
+        },
+        delta: {
+          display: "",
+          direction: "flat",
+          period: "",
+          isExample: true,
+        },
+      };
+    }
+  }
+  // Structural gauge is seed EXAMPLE — zero it so UI can hide
+  copy.metrics.structuralGauge = {
+    label: "",
+    score: 0,
+    caption: "",
+  };
+  return copy;
+}
+
 export function applyLiveOverlays(
   sectors: Sector[],
   live: LiveBundle
@@ -115,7 +155,7 @@ export function applyLiveOverlays(
       };
       applyMetric(copy, "northStar", live.gpu, "GPU rental spot (H100-eq)");
       copy.whyItMoved =
-        "Public H100-eq rental floors are the live capacity-price signal; software ARR estimates remain EXAMPLE placeholders.";
+        "Public H100-eq rental floors are the live capacity-price signal for AI infra pricing.";
       copy.catalyst = {
         id: "ai-c-gpu",
         label: "GPU rental spot floor",
@@ -140,7 +180,7 @@ export function applyLiveOverlays(
         ...s.sources.filter((x) => !/GPU|gpu/i.test(x.label)),
       ];
       copy.methodology =
-        "North star is GPU rental spot — RunPod public GraphQL H100 on-demand floor (live, daily cache + cron warm; curated stale fallback). Est. AI software ARR and other metrics remain EXAMPLE DATA.";
+        "North star is GPU rental spot — RunPod public GraphQL H100 on-demand floor (live, daily cache + cron warm; curated stale fallback). No other AI metrics are sourced yet.";
     }
 
     if (s.slug === "data-center") {
@@ -164,7 +204,7 @@ export function applyLiveOverlays(
         "Debt share of hyperscaler capex"
       );
       copy.whyItMoved =
-        "Interconnect queue remains the binding physical bottleneck; US data-center debt issuance ~$182B in 2025 (~2× YoY) is the curated capital pulse into DC build-out (MS via Steffen) — not EXAMPLE.";
+        "Interconnect queue remains the binding physical bottleneck; US data-center debt issuance ~$182B in 2025 (~2× YoY) is the curated capital pulse into DC build-out (MS via Steffen).";
       copy.catalyst = {
         id: "dc-c1",
         label: "Grid interconnection queue",
@@ -228,7 +268,7 @@ export function applyLiveOverlays(
         ),
       ];
       copy.methodology =
-        "North star is interconnect queue — LBNL Queued Up 2026 median IR→COD for U.S. projects completed in 2025 (61 months ≈ 5.1 yrs; curated). Capital pulse is US data-center debt issuance ~$182B in 2025 (~2× YoY) — industry estimate via Morgan Stanley / FT·Bloomberg as summarized by Steffen (2026-08-14), curated not live API. Secondary: incremental debt share of hyperscaler capex ~32% trailing mid-2026 vs ~9% FY2024 (same cite). Catalyst: Nvidia MOUs with Apollo/BlackRock/Blackstone/Brookfield/GS/KKR to mobilize >$500B third-party compute financing (announced platforms, not committed; Aug 10, 2026). Mover: Meta Hyperion ~$27B SPV debt. Talent/facilities roles remain EXAMPLE DATA.";
+        "North star is interconnect queue — LBNL Queued Up 2026 median IR→COD for U.S. projects completed in 2025 (61 months ≈ 5.1 yrs; curated). Capital pulse is US data-center debt issuance ~$182B in 2025 (~2× YoY) — industry estimate via Morgan Stanley / FT·Bloomberg as summarized by Steffen (2026-08-14), curated (not a live API). Secondary: incremental debt share of hyperscaler capex ~32% trailing mid-2026 vs ~9% FY2024 (same cite). Catalyst: Nvidia MOUs with Apollo/BlackRock/Blackstone/Brookfield/GS/KKR to mobilize >$500B third-party compute financing (announced platforms, not committed; Aug 10, 2026). Mover: Meta Hyperion ~$27B SPV debt. No unsourced talent or facilities figures are shown.";
     }
 
     if (s.slug === "capital-formation") {
@@ -280,110 +320,106 @@ export function applyLiveOverlays(
         ),
       ];
       copy.methodology =
-        "North star is gross US national debt ($40.10T) curated from the Kalshi Citizen Debt Forecast / Tarek Mansour launch post (2026-09-03) — not EXAMPLE. Capital pulse is Global VC H1 YTD from Dealroom (live scrape + curated fallback). FY26 deficit $1.9T is the same curated fiscal post. Other capital figures remain EXAMPLE DATA.";
+        "North star is gross US national debt ($40.10T) curated from the Kalshi Citizen Debt Forecast / Tarek Mansour launch post (2026-09-03). Capital pulse is Global VC H1 YTD from Dealroom (live scrape + curated fallback). FY26 deficit $1.9T is the same curated fiscal post. No unsourced capital figures are shown.";
     }
 
-    // Harden EXAMPLE labels on remaining example north stars
-    if (copy.metrics.northStar.value.isExample) {
-      copy.metrics.northStar = {
-        ...copy.metrics.northStar,
-        label: ensureExampleLabel(
-          copy.metrics.northStar.label.replace(/\s*\(EXAMPLE\)\s*$/i, "")
-        ),
-      };
+    if (
+      s.slug === "ai" ||
+      s.slug === "data-center" ||
+      s.slug === "capital-formation"
+    ) {
+      // Restrict catalysts to sourced ones only
+      if (s.slug === "ai") {
+        copy.catalysts = copy.catalysts.filter((c) => c.id === "ai-c-gpu");
+      }
+      if (s.slug === "data-center") {
+        copy.catalysts = copy.catalysts.filter(
+          (c) => c.id === "dc-c1" || c.id === "dc-c-nvda-financing"
+        );
+      }
+      if (s.slug === "capital-formation") {
+        copy.catalysts = copy.catalysts.filter((c) => c.id === "cf-c-debt");
+      }
+      return sanitizeWiredSector(copy);
     }
 
     return copy;
   });
 }
 
-/** Build global pulse: wired instruments first, then non-conflicting EXAMPLE movers. */
+function pulseItem(
+  id: string,
+  sectorSlug: string,
+  sectorName: string,
+  label: string,
+  payload: LiveMetricPayload
+): PulseItem {
+  return {
+    id,
+    sectorSlug,
+    sectorName,
+    label,
+    valueDisplay: payload.value.display,
+    delta: payload.delta ?? {
+      display: "",
+      direction: "flat" as const,
+      period: "",
+      isExample: false,
+    },
+    isExample: false,
+    provenance: payload.value.provenance,
+    stale: payload.value.stale,
+    sourceLabel: payload.value.sourceLabel,
+  };
+}
+
+/** Build global pulse from live/curated instruments only — no EXAMPLE movers. */
 export function buildGlobalPulse(live: LiveBundle): PulseItem[] {
-  const wired: PulseItem[] = [
-    {
-      id: "live-gpu",
-      sectorSlug: "ai",
-      sectorName: "AI",
-      label: "GPU rental spot (H100-eq)",
-      valueDisplay: live.gpu.value.display,
-      delta: live.gpu.delta ?? {
-        display: "",
-        direction: "flat" as const,
-        period: "",
-        isExample: false,
-      },
-      isExample: false,
-      provenance: live.gpu.value.provenance,
-      stale: live.gpu.value.stale,
-      sourceLabel: live.gpu.value.sourceLabel,
-    },
-    {
-      id: "live-interconnect",
-      sectorSlug: "data-center",
-      sectorName: "Data center",
-      label: "Interconnect queue (median IR→COD)",
-      valueDisplay: live.interconnect.value.display,
-      delta: live.interconnect.delta ?? {
-        display: "",
-        direction: "flat" as const,
-        period: "",
-        isExample: false,
-      },
-      isExample: false,
-      provenance: live.interconnect.value.provenance,
-      stale: live.interconnect.value.stale,
-      sourceLabel: live.interconnect.value.sourceLabel,
-    },
-    {
-      id: "live-vc",
-      sectorSlug: "capital-formation",
-      sectorName: "Capital",
-      label: "Global VC deployed (H1 YTD)",
-      valueDisplay: live.vc.value.display,
-      delta: live.vc.delta ?? {
-        display: "",
-        direction: "flat" as const,
-        period: "",
-        isExample: false,
-      },
-      isExample: false,
-      provenance: live.vc.value.provenance,
-      stale: live.vc.value.stale,
-      sourceLabel: live.vc.value.sourceLabel,
-    },
-    {
-      id: "live-debt",
-      sectorSlug: "capital-formation",
-      sectorName: "Capital",
-      label: "US national debt",
-      valueDisplay: live.debt.value.display,
-      delta: live.debt.delta ?? {
-        display: "",
-        direction: "flat" as const,
-        period: "",
-        isExample: false,
-      },
-      isExample: false,
-      provenance: live.debt.value.provenance,
-      stale: live.debt.value.stale,
-      sourceLabel: live.debt.value.sourceLabel,
-    },
+  return [
+    pulseItem("live-gpu", "ai", "AI", "GPU rental spot (H100-eq)", live.gpu),
+    pulseItem(
+      "live-interconnect",
+      "data-center",
+      "Data center",
+      "Interconnect queue (median IR→COD)",
+      live.interconnect
+    ),
+    pulseItem(
+      "live-dc-debt",
+      "data-center",
+      "Data center",
+      "US DC debt issuance (2025)",
+      live.dcDebtIssuance
+    ),
+    pulseItem(
+      "live-dc-share",
+      "data-center",
+      "Data center",
+      "Debt share of hyperscaler capex",
+      live.dcDebtShare
+    ),
+    pulseItem(
+      "live-vc",
+      "capital-formation",
+      "Capital",
+      "Global VC deployed (H1 YTD)",
+      live.vc
+    ),
+    pulseItem(
+      "live-debt",
+      "capital-formation",
+      "Capital",
+      "US national debt",
+      live.debt
+    ),
+    pulseItem(
+      "live-deficit",
+      "capital-formation",
+      "Capital",
+      "FY26 federal deficit",
+      live.deficit
+    ),
   ];
-
-  // Drop EXAMPLE pulse items that conflict with wired signals (e.g. old GPU −22%)
-  const exampleSafe = globalPulseExample.filter((p) => {
-    if (p.sectorSlug === "ai" && /GPU/i.test(p.label)) return false;
-    if (
-      p.sectorSlug === "data-center" &&
-      /Interconnect|queue|DC debt|debt issuance/i.test(p.label)
-    )
-      return false;
-    if (p.sectorSlug === "capital-formation" && /VC deployed|Global VC|national debt|debt/i.test(p.label))
-      return false;
-    return true;
-  });
-
-  return [...wired, ...exampleSafe];
 }
 
 export {

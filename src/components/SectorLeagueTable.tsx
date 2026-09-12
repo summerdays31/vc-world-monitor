@@ -1,28 +1,24 @@
 import Link from "next/link";
 import type { Sector } from "@/data/types";
-import { cleanLabel, pickSecondary } from "@/lib/homeMetrics";
+import { cleanLabel, pickSecondary, realMetricSlots } from "@/lib/homeMetrics";
 import { deltaClass, isMeaningfulDelta } from "@/lib/format";
 
-/** Fixed importance order for wired home rows; then alpha. */
 const IMPORTANCE: Record<string, number> = {
   ai: 0,
   "data-center": 1,
   "capital-formation": 2,
-  "compute-semiconductors": 3,
 };
 
-/**
- * Full-width ledger — Sector | Metrics (two-line) | Values (lattice).
- * Stronger sector column; secondary metric densifies each row.
- * Inline Δ only when meaningful.
- */
+/** League — sourced metrics only. */
 export function SectorLeagueTable({ sectors }: { sectors: Sector[] }) {
-  const ranked = [...sectors].sort((a, b) => {
-    const ai = IMPORTANCE[a.slug] ?? 50;
-    const bi = IMPORTANCE[b.slug] ?? 50;
-    if (ai !== bi) return ai - bi;
-    return a.name.localeCompare(b.name);
-  });
+  const ranked = [...sectors]
+    .filter((s) => realMetricSlots(s.metrics).length > 0)
+    .sort((a, b) => {
+      const ai = IMPORTANCE[a.slug] ?? 50;
+      const bi = IMPORTANCE[b.slug] ?? 50;
+      if (ai !== bi) return ai - bi;
+      return a.name.localeCompare(b.name);
+    });
 
   if (ranked.length === 0) return null;
 
@@ -41,13 +37,14 @@ export function SectorLeagueTable({ sectors }: { sectors: Sector[] }) {
           </thead>
           <tbody>
             {ranked.map((s) => {
-              const ns = s.metrics.northStar;
+              const slots = realMetricSlots(s.metrics);
+              const ns = slots[0] ?? s.metrics.northStar;
               const sec = pickSecondary(s.metrics);
               const primaryLabel = cleanLabel(ns.label);
-              const secondaryLabel = cleanLabel(sec.label);
+              const secondaryLabel = sec ? cleanLabel(sec.label) : null;
               const showPrimaryDelta = isMeaningfulDelta(ns.delta);
               const showSecondaryDelta =
-                !sec.value.isExample && isMeaningfulDelta(sec.delta);
+                sec != null && isMeaningfulDelta(sec.delta);
 
               return (
                 <tr
@@ -72,12 +69,14 @@ export function SectorLeagueTable({ sectors }: { sectors: Sector[] }) {
                     >
                       {primaryLabel}
                     </p>
-                    <p
-                      className="mt-0.5 truncate text-[11px] text-[#a39e94]"
-                      title={secondaryLabel}
-                    >
-                      {secondaryLabel}
-                    </p>
+                    {secondaryLabel ? (
+                      <p
+                        className="mt-0.5 truncate text-[11px] text-[#a39e94]"
+                        title={secondaryLabel}
+                      >
+                        {secondaryLabel}
+                      </p>
+                    ) : null}
                   </td>
                   <td className="w-[9.5rem] whitespace-nowrap py-2.5 text-right align-top sm:w-[11rem]">
                     <div className="flex items-baseline justify-end gap-1.5">
@@ -94,20 +93,22 @@ export function SectorLeagueTable({ sectors }: { sectors: Sector[] }) {
                         </span>
                       ) : null}
                     </div>
-                    <div className="mt-0.5 flex items-baseline justify-end gap-1.5">
-                      <span className="text-[12px] tabular-nums tracking-tight text-[#8a847a]">
-                        {sec.value.isExample ? "—" : sec.value.display}
-                      </span>
-                      {showSecondaryDelta ? (
-                        <span
-                          className={`text-[10px] tabular-nums ${deltaClass(
-                            sec.delta.direction
-                          )}`}
-                        >
-                          {sec.delta.display}
+                    {sec ? (
+                      <div className="mt-0.5 flex items-baseline justify-end gap-1.5">
+                        <span className="text-[12px] tabular-nums tracking-tight text-[#8a847a]">
+                          {sec.value.display}
                         </span>
-                      ) : null}
-                    </div>
+                        {showSecondaryDelta ? (
+                          <span
+                            className={`text-[10px] tabular-nums ${deltaClass(
+                              sec.delta.direction
+                            )}`}
+                          >
+                            {sec.delta.display}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </td>
                 </tr>
               );

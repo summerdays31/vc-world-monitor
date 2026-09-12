@@ -1,26 +1,39 @@
 import Link from "next/link";
 import type { Sector } from "@/data/types";
+import { seriesByKey } from "@/data/series";
 import {
   cleanLabel,
-  isPlaceholderSector,
-  pickSecondary,
+  realMetricSlots,
   type MetricSlot,
 } from "@/lib/homeMetrics";
 import { DeltaPill } from "./DeltaPill";
-import { ExampleBadge, ProvenanceMark } from "./ProvenanceBadge";
+import { ProvenanceMark } from "./ProvenanceBadge";
+import { ContextBars } from "./charts/ContextBars";
+
+function seriesForSlot(sectorSlug: string, slot: MetricSlot) {
+  if (sectorSlug === "data-center") {
+    if (/Interconnect/i.test(slot.label)) return seriesByKey.interconnect;
+    if (/Debt share/i.test(slot.label)) return seriesByKey.dcDebtShare;
+  }
+  if (sectorSlug === "capital-formation") {
+    if (/deficit/i.test(slot.label)) return seriesByKey.deficit;
+  }
+  return undefined;
+}
 
 function MetricLane({
-  label,
+  sectorSlug,
   slot,
   primary,
 }: {
-  label: string;
+  sectorSlug: string;
   slot: MetricSlot;
   primary?: boolean;
 }) {
   const { value, delta } = slot;
+  const series = seriesForSlot(sectorSlug, slot);
   return (
-    <div className={primary ? "space-y-1 pb-3" : "space-y-1 pt-3"}>
+    <div className={primary ? "space-y-2 pb-3" : "space-y-2 pt-3"}>
       <div className="flex items-baseline justify-between gap-2">
         <p
           className={`min-w-0 truncate text-[11px] ${
@@ -28,9 +41,9 @@ function MetricLane({
               ? "font-medium text-[#6b6560]"
               : "font-normal text-[#8a847a]"
           }`}
-          title={cleanLabel(label)}
+          title={cleanLabel(slot.label)}
         >
-          {cleanLabel(label)}
+          {cleanLabel(slot.label)}
         </p>
         <DeltaPill delta={delta} compact showPeriod={false} />
       </div>
@@ -44,21 +57,21 @@ function MetricLane({
         >
           {value.display}
         </span>
-        {value.isExample ? (
-          <ExampleBadge />
-        ) : (
-          <ProvenanceMark value={value} />
-        )}
+        <ProvenanceMark value={value} />
       </div>
+      {series && series.points.length >= 2 ? (
+        <div className="pt-1">
+          <ContextBars series={series} height={72} />
+        </div>
+      ) : null}
     </div>
   );
 }
 
-/** Home sector card — at most two metrics (north star + one secondary). */
+/** Home sector card — real metrics only (headline + chart when series exists). */
 export function SectorCard({ sector }: { sector: Sector }) {
-  const { metrics } = sector;
-  const secondary = pickSecondary(metrics);
-  const whollyExample = isPlaceholderSector(sector);
+  const slots = realMetricSlots(sector.metrics);
+  if (slots.length === 0) return null;
 
   return (
     <Link
@@ -81,21 +94,20 @@ export function SectorCard({ sector }: { sector: Sector }) {
             {sector.blurb}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-[#8a847a]">
-            {sector.mode}
-          </span>
-          {whollyExample ? <ExampleBadge /> : null}
-        </div>
+        <span className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-[#8a847a]">
+          {sector.mode}
+        </span>
       </div>
 
       <div className="mt-auto divide-y divide-[#e5e2db]">
-        <MetricLane
-          label={metrics.northStar.label}
-          slot={metrics.northStar}
-          primary
-        />
-        <MetricLane label={secondary.label} slot={secondary} />
+        {slots.map((slot, i) => (
+          <MetricLane
+            key={slot.label}
+            sectorSlug={sector.slug}
+            slot={slot}
+            primary={i === 0}
+          />
+        ))}
       </div>
     </Link>
   );
